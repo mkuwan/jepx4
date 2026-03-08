@@ -1,0 +1,50 @@
+# config_data/jepx_master.yaml (§9.2)
+
+# エリアコード (翌日市場)
+areas:
+  "1": "北海道"
+  "2": "東北"
+  "3": "東京"
+  "4": "中部"
+  "5": "北陸"
+  "6": "関西"
+  "7": "中国"
+  "8": "四国"
+  "9": "九州"
+
+# エリアグループコード (時間前市場)
+area_groups:
+  "A1": "北海道"
+  "A2": "東北"
+  "A4": "中部"
+  "A7": "中国"
+  "A9": "九州"
+
+# 時間帯コード
+time_codes:
+  min: 1
+  max: 48
+
+# 入札種別コード
+bid_types:
+  - "SELL-LIMIT"    # 売り指値
+  - "BUY-LIMIT"     # 買い指値
+  - "SELL-MARKET"   # 売り成行
+  - "BUY-MARKET"    # 買い成行
+  - "FIT"           # FIT
+  - "DEL"           # 削除要求 (ITD)
+
+# 通知種別コード (ITN)
+notice_types:
+  - "CONTRACT"      # 約定情報
+  - "BID-BOARD"     # 板情報
+
+# 取引中断コード
+suspend_codes:
+  "0": "取引可能"
+  "1": "取引中断"
+
+# 入札制限値
+limits:
+  max_bid_price: 999.0     # 円/MWh
+  max_bid_volume: 5000.0   # MW
