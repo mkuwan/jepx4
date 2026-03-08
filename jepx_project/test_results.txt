@@ -1,0 +1,170 @@
+test_stores_status_and_info (test_exceptions.TestBusinessError.test_stores_status_and_info) ... ok
+test_all_inherit_from_jepx_error (test_exceptions.TestExceptionHierarchy.test_all_inherit_from_jepx_error) ... ok
+test_protocol_error_not_retryable (test_exceptions.TestRetryableFlags.test_protocol_error_not_retryable)
+プロトコルエラーもリトライ不可 ... ok
+test_retryable_false (test_exceptions.TestRetryableFlags.test_retryable_false)
+リトライ不可: FormatError, AuthError, BusinessError ... ok
+test_retryable_true (test_exceptions.TestRetryableFlags.test_retryable_true)
+リトライ対象: SystemError, ConnectionError, TimeoutError ... ok
+test_different_dates_no_conflict (test_modules.TestBatchLock.test_different_dates_no_conflict)
+異なる受渡日のロックは競合しないこと ... 2026-03-08 18:18:16,360 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dates_2026-04-01.lock
+2026-03-08 18:18:16,360 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dates_2026-04-01.lock
+2026-03-08 18:18:16,364 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dates_2026-04-02.lock
+2026-03-08 18:18:16,364 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dates_2026-04-02.lock
+2026-03-08 18:18:16,365 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dates_2026-04-02.lock
+2026-03-08 18:18:16,365 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dates_2026-04-02.lock
+2026-03-08 18:18:16,365 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dates_2026-04-01.lock
+2026-03-08 18:18:16,365 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dates_2026-04-01.lock
+ok
+test_double_lock_raises (test_modules.TestBatchLock.test_double_lock_raises)
+同一ロックの二重取得で RuntimeError が発生すること ... 2026-03-08 18:18:16,367 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dup_2026-04-01.lock
+2026-03-08 18:18:16,367 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_dup_2026-04-01.lock
+2026-03-08 18:18:16,369 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dup_2026-04-01.lock
+2026-03-08 18:18:16,369 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_dup_2026-04-01.lock
+ok
+test_lock_acquire_release (test_modules.TestBatchLock.test_lock_acquire_release)
+ロック取得・解放が正常に動作すること ... 2026-03-08 18:18:16,370 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_cmd_2026-04-01.lock
+2026-03-08 18:18:16,370 [INFO] [jepx.audit] [LOCK] 排他ロック取得: test_cmd_2026-04-01.lock
+2026-03-08 18:18:16,370 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_cmd_2026-04-01.lock
+2026-03-08 18:18:16,370 [INFO] [jepx.audit] [LOCK] 排他ロック解放: test_cmd_2026-04-01.lock
+ok
+test_parse_csv (test_modules.TestFileParser.test_parse_csv)
+BOM付きUTF-8 CSVのパース ... ok
+test_parse_csv_no_bom (test_modules.TestFileParser.test_parse_csv_no_bom)
+BOMなしUTF-8 CSVのパース ... ok
+test_parse_empty_csv (test_modules.TestFileParser.test_parse_empty_csv)
+空CSVのパース ... ok
+test_bid_response_failure (test_modules.TestItdSerializers.test_bid_response_failure) ... ok
+test_bid_response_success (test_modules.TestItdSerializers.test_bid_response_success) ... ok
+test_contract_response (test_modules.TestItdSerializers.test_contract_response) ... ok
+test_delete_response (test_modules.TestItdSerializers.test_delete_response) ... ok
+test_error_response (test_modules.TestItdSerializers.test_error_response) ... ok
+test_inquiry_response (test_modules.TestItdSerializers.test_inquiry_response) ... ok
+test_board_merge_overwrites (test_modules.TestItnMemoryStore.test_board_merge_overwrites)
+同一キーの板情報は上書きマージされること ... ok
+test_connection_status (test_modules.TestItnMemoryStore.test_connection_status)
+接続状態の更新が反映されること ... ok
+test_initial_empty (test_modules.TestItnMemoryStore.test_initial_empty)
+初期状態は空 ... ok
+test_set_full_state_clears (test_modules.TestItnMemoryStore.test_set_full_state_clears)
+全量配信で既存データがリセットされること ... ok
+test_update_boards (test_modules.TestItnMemoryStore.test_update_boards)
+BID-BOARD通知が(areaCd,timeCd)でマージされること ... ok
+test_update_contracts (test_modules.TestItnMemoryStore.test_update_contracts)
+CONTRACT通知がbidNoでマージされること ... ok
+test_version_increments (test_modules.TestItnMemoryStore.test_version_increments)
+更新のたびにバージョンが上がること ... ok
+test_mask_client_secret (test_modules.TestMaskingFilter.test_mask_client_secret)
+client_secret がマスクされること ... ok
+test_mask_member_id (test_modules.TestMaskingFilter.test_mask_member_id)
+memberId がマスクされること ... ok
+test_mask_password (test_modules.TestMaskingFilter.test_mask_password)
+password がマスクされること ... ok
+test_no_mask_normal_message (test_modules.TestMaskingFilter.test_no_mask_normal_message)
+機密情報を含まないメッセージはそのまま ... ok
+test_area_codes_count (test_modules.TestMasterCodes.test_area_codes_count)
+エリアコード: 1～9 の9エリア ... ok
+test_area_group_codes (test_modules.TestMasterCodes.test_area_group_codes)
+エリアグループコード (A1,A2等) が存在すること ... ok
+test_bid_types (test_modules.TestMasterCodes.test_bid_types)
+入札種別が6種類登録されていること ... ok
+test_get_area_name (test_modules.TestMasterCodes.test_get_area_name) ... ok
+test_limits (test_modules.TestMasterCodes.test_limits)
+制限値が定義されていること ... ok
+test_load_master_codes (test_modules.TestMasterCodes.test_load_master_codes)
+YAML読み込みが成功すること ... ok
+test_time_code_range (test_modules.TestMasterCodes.test_time_code_range)
+時間帯コード: 1～48 ... ok
+test_body_is_gzipped_json (test_protocol.TestBuildPacket.test_body_is_gzipped_json)
+ボディ部がgzip圧縮されたJSONであること ... ok
+test_empty_body (test_protocol.TestBuildPacket.test_empty_body)
+SYS1001: 空ボディでも正しくパケットを生成すること ... ok
+test_header_format (test_protocol.TestBuildPacket.test_header_format)
+ヘッダが MEMBER=xxxx,API=xxxxxxx,SIZE=nnn 形式であること ... ok
+test_member_4_digits (test_protocol.TestBuildPacket.test_member_4_digits)
+会員IDが4桁でヘッダに含まれること ... ok
+test_packet_structure (test_protocol.TestBuildPacket.test_packet_structure)
+SOH + Header + STX + gzip(JSON) + ETX の構造を検証 ... ok
+test_size_matches_compressed_body (test_protocol.TestBuildPacket.test_size_matches_compressed_body)
+ヘッダのSIZEがgzip圧縮後のバイト数と一致すること ... ok
+test_corrupted_gzip (test_protocol.TestParseResponse.test_corrupted_gzip)
+gzip破損で JepxProtocolError が発生すること ... ok
+test_missing_soh (test_protocol.TestParseResponse.test_missing_soh)
+SOH欠落で JepxProtocolError が発生すること ... ok
+test_normal_parse (test_protocol.TestParseResponse.test_normal_parse)
+正常レスポンスの解析 ... ok
+test_roundtrip (test_protocol.TestParseResponse.test_roundtrip)
+build → parse のラウンドトリップテスト ... ok
+test_size_mismatch (test_protocol.TestParseResponse.test_size_mismatch)
+SIZE不一致で JepxProtocolError が発生すること ... ok
+test_status_00 (test_protocol.TestValidateStatus.test_status_00)
+STATUS=00: 正常 (例外なし) ... ok
+test_status_10 (test_protocol.TestValidateStatus.test_status_10)
+STATUS=10: JepxFormatError ... ok
+test_status_11 (test_protocol.TestValidateStatus.test_status_11)
+STATUS=11: JepxAuthError ... ok
+test_status_19 (test_protocol.TestValidateStatus.test_status_19)
+STATUS=19: JepxSystemError ... ok
+test_unknown_status (test_protocol.TestValidateStatus.test_unknown_status)
+未知のSTATUS: JepxProtocolError ... ok
+test_invalid_area_code (test_validators.TestCodeChecks.test_invalid_area_code)
+V-004: 無効なエリアコード ... ok
+test_invalid_bid_type (test_validators.TestCodeChecks.test_invalid_bid_type)
+V-008: 無効な入札種別コード ... ok
+test_invalid_time_code (test_validators.TestCodeChecks.test_invalid_time_code)
+V-006: 時間帯コードが範囲外 ... ok
+test_valid_area_code (test_validators.TestCodeChecks.test_valid_area_code)
+V-004: 有効なエリアコード (1～9) ... ok
+test_valid_bid_types (test_validators.TestCodeChecks.test_valid_bid_types)
+V-008: 有効な入札種別 ... ok
+test_valid_time_code_range (test_validators.TestCodeChecks.test_valid_time_code_range)
+V-006: 時間帯コード 1～48 は有効 ... ok
+test_duplicate_entries (test_validators.TestDahSpecificRules.test_duplicate_entries)
+V-D02: 同一(deliveryDate, areaCd, timeCd)の重複 ... ok
+test_no_duplicate (test_validators.TestDahSpecificRules.test_no_duplicate)
+V-D02: 異なるキーなら重複なし ... ok
+test_invalid_date_format (test_validators.TestFormatChecks.test_invalid_date_format)
+V-002: deliveryDate が YYYY-MM-DD でない ... ok
+test_note_too_long (test_validators.TestFormatChecks.test_note_too_long)
+V-016: note が100文字超 ... ok
+test_note_within_limit (test_validators.TestFormatChecks.test_note_within_limit)
+V-016: note が100文字以内 ... ok
+test_valid_date_format (test_validators.TestFormatChecks.test_valid_date_format)
+V-002: 正しい日付形式 ... ok
+test_all_valid (test_validators.TestRequiredFields.test_all_valid)
+全項目が正常なら0件エラー ... ok
+test_missing_area_cd (test_validators.TestRequiredFields.test_missing_area_cd)
+V-003: areaCd 未入力 ... ok
+test_missing_bid_type (test_validators.TestRequiredFields.test_missing_bid_type)
+V-007: bidTypeCd 未入力 ... ok
+test_missing_delivery_contract_cd (test_validators.TestRequiredFields.test_missing_delivery_contract_cd)
+V-015: deliveryContractCd 未入力 ... ok
+test_missing_delivery_date (test_validators.TestRequiredFields.test_missing_delivery_date)
+V-001: deliveryDate 未入力 ... ok
+test_missing_time_cd (test_validators.TestRequiredFields.test_missing_time_cd)
+V-005: timeCd 未入力 ... ok
+test_missing_volume (test_validators.TestRequiredFields.test_missing_volume)
+V-012: volume 未入力 ... ok
+test_price_not_required_for_market (test_validators.TestRequiredFields.test_price_not_required_for_market)
+V-009: 成行注文ではprice不要 ... ok
+test_price_multiple_of_10 (test_validators.TestUnitAndRangeChecks.test_price_multiple_of_10)
+V-010: 入札価格が10の倍数 ... ok
+test_price_not_multiple_of_10 (test_validators.TestUnitAndRangeChecks.test_price_not_multiple_of_10)
+V-010: 入札価格が10の倍数でない ... ok
+test_price_out_of_range (test_validators.TestUnitAndRangeChecks.test_price_out_of_range)
+V-011: 入札価格が上限超過 ... ok
+test_volume_out_of_range (test_validators.TestUnitAndRangeChecks.test_volume_out_of_range)
+V-014: 入札量が上限超過 ... ok
+test_integer_volume (test_validators.TestVolumeAutoCorrection.test_integer_volume)
+V-013: 整数値はそのまま ... ok
+test_no_truncation_needed (test_validators.TestVolumeAutoCorrection.test_no_truncation_needed)
+V-013: 100.5 はそのまま ... ok
+test_truncate_to_first_decimal (test_validators.TestVolumeAutoCorrection.test_truncate_to_first_decimal)
+V-013: 100.56 → 100.5 に自動補正 ... 2026-03-08 18:18:16,396 [INFO] [jepx.audit] [OPERATION] V-013 volume自動補正: row=1, 100.56→100.5
+2026-03-08 18:18:16,396 [INFO] [jepx.audit] [OPERATION] V-013 volume自動補正: row=1, 100.56→100.5
+ok
+
+----------------------------------------------------------------------
+Ran 78 tests in 0.040s
+
+OK
