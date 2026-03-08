@@ -1,0 +1,11 @@
+services:
+  jepx-mockserver:
+    build: .
+    container_name: jepx-mockserver
+    ports:
+      - "8888:8888"
+    environment:
+      - MOCK_HOST=0.0.0.0
+      - MOCK_PORT=8888
+      # - MOCK_IDLE_TIMEOUT_SEC=10  # Shorter timeout for rapid testing
+    restart: unless-stopped

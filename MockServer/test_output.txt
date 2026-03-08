@@ -1,0 +1,60 @@
+test_01_sys1001_keep_alive (tests.test_server.TestJepxMockServer.test_01_sys1001_keep_alive)
+[テスト1] SYS1001 (Keep-Alive) の正常系テスト ... Executing <Task pending name='Task-1' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+test_02_dah1001_bid_and_dah1002_inquiry (tests.test_server.TestJepxMockServer.test_02_dah1001_bid_and_dah1002_inquiry)
+[テスト2] 翌日市場 入札(DAH1001) と 入札照会(DAH1002) の状態保持テスト ... Executing <Task pending name='Task-6' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.125 seconds
+ok
+test_03_invalid_member (tests.test_server.TestJepxMockServer.test_03_invalid_member)
+[テスト3] 異常系: 無効なMEMBER IDによる認証エラーテスト ... Executing <Task pending name='Task-11' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+test_04_itn1001_stream (tests.test_server.TestJepxMockServer.test_04_itn1001_stream)
+[テスト4] 時間前市場 ITN1001 (市場情報通知) のストリーミング受信テスト ... Executing <Task pending name='Task-16' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+test_05_dah1003_delete_and_dah1004_contract (tests.test_server.TestJepxMockServer.test_05_dah1003_delete_and_dah1004_contract)
+[テスト5] 翌日市場 入札削除(DAH1003) と 約定照会(DAH1004) のテスト ... Executing <Task pending name='Task-21' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.125 seconds
+ok
+test_06_itd_market_suite (tests.test_server.TestJepxMockServer.test_06_itd_market_suite)
+[テスト6] 時間前市場 (ITD1001→ITD1003→ITD1002→ITD1004) の統合テスト ... Executing <Task pending name='Task-26' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.125 seconds
+ok
+test_07_data_format_error (tests.test_server.TestJepxMockServer.test_07_data_format_error)
+[テスト7] 異常系: ヘッダのSIZEと実Bodyサイズが異なる場合にSTATUS=10を返すか検証。 ... ok
+test_08_tls13_connection (tests.test_server.TestJepxMockServer.test_08_tls13_connection)
+[テスト8] MockServerがJEPX仕様のTLS 1.3で通信していることを確認する。 ... ok
+test_09_unknown_api_code (tests.test_server.TestJepxMockServer.test_09_unknown_api_code)
+[テスト9] 異常系: 存在しないAPIコードに対しSTATUS=10が返るか検証する。 ... Executing <Task pending name='Task-41' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.109 seconds
+ok
+test_10_sys1001_keep_alive_extends_socket (tests.test_server.TestJepxMockServer.test_10_sys1001_keep_alive_extends_socket)
+[テスト10] SYS1001の後、同一Socketで別APIが正常に処理されるか検証する。 ... Executing <Task pending name='Task-46' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.110 seconds
+ok
+test_11_dah1030_alias (tests.test_server.TestJepxMockServer.test_11_dah1030_alias)
+[テスト11] DAH1030がDAH1004と同じ約定照会ハンドラで処理されるか検証する。 ... Executing <Task pending name='Task-51' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+test_12_itn_full_state_structure (tests.test_server.TestJepxMockServer.test_12_itn_full_state_structure)
+[テスト12] 全量配信データの各要素がJEPX仕様903の必須フィールドを含むか検証する。 ... Executing <Task pending name='Task-56' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.110 seconds
+ok
+test_13_dah1001_multi_bid (tests.test_server.TestJepxMockServer.test_13_dah1001_multi_bid)
+[テスト13] 複数入札を一括送信し、statusInfoに件数が返り全件登録されるか検証する。 ... ok
+test_14_response_header_size_validation (tests.test_server.TestJepxMockServer.test_14_response_header_size_validation)
+[テスト14] レスポンスのSIZEフィールドと実際のBody長が一致するか検証する。 ... Executing <Task pending name='Task-66' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.110 seconds
+ok
+test_15_itn_full_state_date_range (tests.test_server.TestJepxMockServer.test_15_itn_full_state_date_range)
+[テスト15] 全量配信のnoticesが当日＋翌日のみで構成されているか検証する。 ... ok
+test_16_itn_diff_delivery_date_valid (tests.test_server.TestJepxMockServer.test_16_itn_diff_delivery_date_valid)
+[テスト16] 差分配信のdeliveryDateが当日/翌日の範囲内であるか検証する。 ... ok
+test_17_dah1003_delete_nonexistent_bid (tests.test_server.TestJepxMockServer.test_17_dah1003_delete_nonexistent_bid)
+[テスト17] 存在しないbidNoに対して削除すると、statusInfo="0"（0件削除）が返るか検証する。 ... Executing <Task pending name='Task-81' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.172 seconds
+ok
+test_18_empty_body_request (tests.test_server.TestJepxMockServer.test_18_empty_body_request)
+[テスト18] 空JSON({})でDAH1002照会してもクラッシュせず空のbids[]が返るか検証する。 ... Executing <Task pending name='Task-86' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.140 seconds
+ok
+test_19_dah9001_settlement (tests.test_server.TestJepxMockServer.test_19_dah9001_settlement)
+[テスト19] 翌日市場 清算照会(DAH9001)がJEPX仕様902準拠のsettlements[]を返すか検証する。 ... Executing <Task pending name='Task-91' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+test_20_itd9001_settlement (tests.test_server.TestJepxMockServer.test_20_itd9001_settlement)
+[テスト20] 時間前市場 清算照会(ITD9001)がJEPX仕様903準拠のsettlements[]を返すか検証する。 ... Executing <Task pending name='Task-96' coro=<TestJepxMockServer.asyncSetUp() running at N:\antigravity\jepx4\MockServer\tests\test_server.py:49> wait_for=<_OverlappedFuture pending cb=[Task.task_wakeup()] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:605> cb=[_run_until_complete_cb() at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:181] created at C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.156 seconds
+ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 16.696s
+
+OK

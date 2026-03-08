@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  jepx-mock:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./src:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - jepx-net
+
+networks:
+  jepx-net:
+    driver: bridge
