@@ -1,16 +1,22 @@
 """JEPX TLS Socket接続ラッパー (§3.6)
 
 環境に応じたSSLContextを生成し、asyncio Socketで通信する。
-- dev: 自己署名証明書許容 (MockServer)
-- stage/prod: JEPXルートCA証明書で検証
+
+TLS検証モード (JEPX_TLS_VERIFY と JEPX_TLS_CA_CERT の組合せ):
+  Mode A: OSストア    — VERIFY=True,  CA_CERT=None  → OS証明書ストア参照
+  Mode B: ファイル指定 — VERIFY=True,  CA_CERT=path  → 指定CAファイルで検証
+  Mode C: 検証なし    — VERIFY=False               → 証明書検証スキップ
 """
 import asyncio
+import logging
 import ssl
 import time
 
 from django.conf import settings
 
 from .exceptions import JepxConnectionError, JepxTimeoutError
+
+logger = logging.getLogger('jepx.api')
 
 
 class JepxConnection:
@@ -24,20 +30,32 @@ class JepxConnection:
 
     @staticmethod
     def _create_ssl_context() -> ssl.SSLContext:
-        """環境に応じたSSLContextを生成する"""
+        """環境に応じたSSLContextを生成する。
+
+        3つのモードを設定値で制御:
+          Mode A (OSストア):    JEPX_TLS_VERIFY=True  + JEPX_TLS_CA_CERT=None
+          Mode B (ファイル指定): JEPX_TLS_VERIFY=True  + JEPX_TLS_CA_CERT=<path>
+          Mode C (検証なし):    JEPX_TLS_VERIFY=False
+        """
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ctx.minimum_version = ssl.TLSVersion.TLSv1_3  # TLS 1.3 強制
         ctx.maximum_version = ssl.TLSVersion.TLSv1_3
+        ctx.check_hostname = False  # JEPX はIP直接接続のためホスト名検証不可
 
-        if settings.JEPX_TLS_VERIFY:
-            # stage/prod: JEPXルートCA証明書で検証
-            ctx.verify_mode = ssl.CERT_REQUIRED
-            ctx.check_hostname = False   # JEPX はIP直接接続のためホスト名検証不可
-            ctx.load_verify_locations(settings.JEPX_TLS_CA_CERT)
-        else:
-            # dev: MockServerの自己署名証明書を許容
-            ctx.check_hostname = False
+        if not settings.JEPX_TLS_VERIFY:
+            # Mode C: 検証なし (レガシーdev互換)
             ctx.verify_mode = ssl.CERT_NONE
+            logger.info("[TLS] Mode C: 証明書検証なし")
+        elif settings.JEPX_TLS_CA_CERT:
+            # Mode B: 指定CAファイルで検証 (dev+MockServer CA / stage)
+            ctx.verify_mode = ssl.CERT_REQUIRED
+            ctx.load_verify_locations(settings.JEPX_TLS_CA_CERT)
+            logger.info("[TLS] Mode B: ファイル指定 (%s)", settings.JEPX_TLS_CA_CERT)
+        else:
+            # Mode A: OS証明書ストア参照 (prod推奨)
+            ctx.verify_mode = ssl.CERT_REQUIRED
+            ctx.load_default_certs()
+            logger.info("[TLS] Mode A: OS証明書ストア")
         return ctx
 
     async def connect(self, host: str, port: int) -> None:

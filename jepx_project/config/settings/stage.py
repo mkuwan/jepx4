@@ -1,4 +1,7 @@
-"""検証環境 — JEPX検証環境接続 (§2.2.4)"""
+"""検証環境 — JEPX検証環境接続 (§2.2.4)
+
+TLS証明書: ファイル指定 (Mode B) — JEPX検証環境CA証明書を certs/ に配置
+"""
 import os
 from .base import *  # noqa: F401,F403
 
@@ -10,7 +13,11 @@ JEPX_HOST = os.environ.get('JEPX_HOST')         # JEPX検証環境IP
 JEPX_PORT = int(os.environ.get('JEPX_PORT', 0))  # JEPX検証環境Port
 JEPX_MEMBER_ID = '9999'                           # 試験用会員ID
 JEPX_TLS_VERIFY = True
-JEPX_TLS_CA_CERT = str(BASE_DIR / 'certs' / 'jepx_root_ca.pem')
+# Mode B: JEPXルートCA証明書をファイルで指定
+JEPX_TLS_CA_CERT = os.environ.get(
+    'JEPX_TLS_CA_CERT',
+    str(BASE_DIR / 'certs' / 'jepx_root_ca.pem'),
+)
 JEPX_ENVIRONMENT = 'stage'
 
 # SharePoint有効
