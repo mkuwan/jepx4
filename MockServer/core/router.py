@@ -34,7 +34,7 @@ class Router:
             response_dict = dah.handle_dah1002(body)
         elif api_code == "DAH1003":
             response_dict = dah.handle_dah1003(body)
-        elif api_code == "DAH1004" or api_code == "DAH1030":
+        elif api_code in ["DAH1004", "DAH1030", "DAH1050"]:
             response_dict = dah.handle_dah1004(body)
         elif api_code == "DAH9001":
             response_dict = dah.handle_dah9001(body)

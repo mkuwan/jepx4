@@ -29,8 +29,13 @@ def handle_itd1003(body: dict) -> dict:
     """ITD1003: 時間前市場 入札照会
     JEPX仕様903 2.3 準拠: bids[] 配列で返却"""
     delivery_date = body.get("deliveryDate", "")
+    time_cd = body.get("timeCd", "")
 
     bids = state.get_bids("ITD", delivery_date)
+    
+    # timeCd が指定されていればフィルタリング
+    if time_cd:
+        bids = [b for b in bids if b.get('timeCd') == time_cd]
 
     return {
         "status": "200",

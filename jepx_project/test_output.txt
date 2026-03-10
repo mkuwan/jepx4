@@ -1,0 +1,128 @@
+test_it_con_01_health_check (tests.test_integration.JepxIntegrationTests.test_it_con_01_health_check)
+IT-CON-01: healthチェックAPIによるTLSコンパクション確認 ... 2026-03-10 12:58:09,273 [DEBUG] [asyncio] Using selector: SelectSelector
+ok
+test_it_dah_01_bid_batch (tests.test_integration.JepxIntegrationTests.test_it_dah_01_bid_batch)
+IT-DAH-01: 入札バッチ (dah_bid) 正常系 ... 2026-03-10 12:58:09,686 [INFO] [jepx.audit] [LOCK] 排他ロック取得: dah_bid_2026-04-01.lock
+2026-03-10 12:58:09,686 [INFO] [jepx.audit] [LOCK] 排他ロック取得: dah_bid_2026-04-01.lock
+2026-03-10 12:58:09,686 [DEBUG] [asyncio] Using selector: SelectSelector
+2026-03-10 12:58:09,688 [INFO] [jepx.audit] [OPERATION] 計画値ファイル取込開始: input/2026-04-01.csv
+2026-03-10 12:58:09,688 [INFO] [jepx.audit] [OPERATION] 計画値ファイル取込開始: input/2026-04-01.csv
+2026-03-10 12:58:09,688 [INFO] [jepx.audit] [SHAREPOINT] dev: ローカル読み込み N:\antigravity\jepx4\jepx_project\test_data\input\2026-04-01.csv
+2026-03-10 12:58:09,688 [INFO] [jepx.audit] [SHAREPOINT] dev: ローカル読み込み N:\antigravity\jepx4\jepx_project\test_data\input\2026-04-01.csv
+2026-03-10 12:58:09,690 [INFO] [jepx.audit] [OPERATION] ファイル件数: 1行
+2026-03-10 12:58:09,690 [INFO] [jepx.audit] [OPERATION] ファイル件数: 1行
+2026-03-10 12:58:09,696 [INFO] [jepx.audit] [OPERATION] 冪等性チェック: DAH1002 (deliveryDate=2026-04-01)
+2026-03-10 12:58:09,696 [INFO] [jepx.audit] [OPERATION] 冪等性チェック: DAH1002 (deliveryDate=2026-04-01)
+2026-03-10 12:58:09,700 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,700 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,711 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,711 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,714 [INFO] [jepx.audit] [API_COMM] api=DAH1002, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,714 [INFO] [jepx.audit] [API_COMM] api=DAH1002, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,714 [INFO] [jepx.audit] [OPERATION] 入札送信: DAH1001 (1件)
+2026-03-10 12:58:09,714 [INFO] [jepx.audit] [OPERATION] 入札送信: DAH1001 (1件)
+2026-03-10 12:58:09,714 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,714 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,715 [INFO] [jepx.audit] [API_COMM] api=DAH1001, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,715 [INFO] [jepx.audit] [API_COMM] api=DAH1001, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,715 [INFO] [jepx.audit] [API_COMM] 入札結果: status=200, statusInfo=1
+2026-03-10 12:58:09,715 [INFO] [jepx.audit] [API_COMM] 入札結果: status=200, statusInfo=1
+2026-03-10 12:58:09,717 [INFO] [jepx.audit] [LOCK] 排他ロック解放: dah_bid_2026-04-01.lock
+2026-03-10 12:58:09,717 [INFO] [jepx.audit] [LOCK] 排他ロック解放: dah_bid_2026-04-01.lock
+FAIL
+test_it_dah_04_inquiry_batch (tests.test_integration.JepxIntegrationTests.test_it_dah_04_inquiry_batch)
+IT-DAH-04: 照会バッチ (dah_inquiry) ... 2026-03-10 12:58:09,723 [DEBUG] [asyncio] Using selector: SelectSelector
+2026-03-10 12:58:09,725 [INFO] [jepx.audit] [OPERATION] 全約定照会: DAH1030
+2026-03-10 12:58:09,725 [INFO] [jepx.audit] [OPERATION] 全約定照会: DAH1030
+2026-03-10 12:58:09,728 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,728 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,740 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,740 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,742 [INFO] [jepx.audit] [API_COMM] api=DAH1030, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,742 [INFO] [jepx.audit] [API_COMM] api=DAH1030, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,742 [INFO] [jepx.audit] [OPERATION] 市場結果照会: DAH1050
+2026-03-10 12:58:09,742 [INFO] [jepx.audit] [OPERATION] 市場結果照会: DAH1050
+2026-03-10 12:58:09,742 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,742 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,743 [INFO] [jepx.audit] [API_COMM] api=DAH1050, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,743 [INFO] [jepx.audit] [API_COMM] api=DAH1050, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,744 [INFO] [jepx.audit] [OPERATION] 清算照会: DAH9001
+2026-03-10 12:58:09,744 [INFO] [jepx.audit] [OPERATION] 清算照会: DAH9001
+2026-03-10 12:58:09,744 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,744 [DEBUG] [jepx.api] [POOL] 再利用 (idle=0, in_use=1)
+2026-03-10 12:58:09,744 [INFO] [jepx.audit] [API_COMM] api=DAH9001, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,744 [INFO] [jepx.audit] [API_COMM] api=DAH9001, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,747 [INFO] [jepx.audit] [SHAREPOINT] dev: ローカル出力 N:\antigravity\jepx4\jepx_project\test_data\output\2026-04-01_SD000000001.pdf (11B)
+2026-03-10 12:58:09,747 [INFO] [jepx.audit] [SHAREPOINT] dev: ローカル出力 N:\antigravity\jepx4\jepx_project\test_data\output\2026-04-01_SD000000001.pdf (11B)
+2026-03-10 12:58:09,747 [INFO] [jepx.audit] [OPERATION] PDF出力: output/2026-04-01_SD000000001.pdf
+2026-03-10 12:58:09,747 [INFO] [jepx.audit] [OPERATION] PDF出力: output/2026-04-01_SD000000001.pdf
+ok
+test_it_itd_01_valid_bid (tests.test_integration.JepxIntegrationTests.test_it_itd_01_valid_bid)
+IT-ITD-01: ExcelからのITD新規入札 (正常系) ... 2026-03-10 12:58:09,750 [DEBUG] [asyncio] Using selector: SelectSelector
+2026-03-10 12:58:09,757 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,757 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,768 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,768 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,770 [INFO] [jepx.audit] [API_COMM] api=ITD1003, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,770 [INFO] [jepx.audit] [API_COMM] api=ITD1003, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,772 [WARNING] [django.request] Conflict: /api/v1/itd/bid
+FAIL
+test_it_itd_02_validation_error (tests.test_integration.JepxIntegrationTests.test_it_itd_02_validation_error)
+IT-ITD-02: バリデーションエラー ... 2026-03-10 12:58:09,785 [DEBUG] [asyncio] Using selector: SelectSelector
+2026-03-10 12:58:09,788 [WARNING] [django.request] Bad Request: /api/v1/itd/bid
+ok
+test_it_itd_04_delete_bid (tests.test_integration.JepxIntegrationTests.test_it_itd_04_delete_bid)
+IT-ITD-04: 注文取消 ... 2026-03-10 12:58:09,793 [DEBUG] [asyncio] Using selector: SelectSelector
+2026-03-10 12:58:09,798 [INFO] [jepx.audit] [OPERATION] ITD削除送信: ITD1002 (bidNo=1234567890)
+2026-03-10 12:58:09,798 [INFO] [jepx.audit] [OPERATION] ITD削除送信: ITD1002 (bidNo=1234567890)
+2026-03-10 12:58:09,800 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,800 [INFO] [jepx.api] [TLS] Mode B: ファイル指定 (N:\antigravity\jepx4\jepx_project\certs\mockserver_ca.pem)
+2026-03-10 12:58:09,811 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,811 [INFO] [jepx.api] [POOL] 新規接続 (idle=0, in_use=1)
+2026-03-10 12:58:09,812 [INFO] [jepx.audit] [API_COMM] api=ITD1002, elapsed=0.000s, STATUS=00, body_status=200
+2026-03-10 12:58:09,812 [INFO] [jepx.audit] [API_COMM] api=ITD1002, elapsed=0.000s, STATUS=00, body_status=200
+ok
+test_it_itn_01_stream_polling (tests.test_integration.JepxIntegrationTests.test_it_itn_01_stream_polling)
+IT-ITN-01: ITN初期スナップショットのポーリング取得 ... 2026-03-10 12:58:09,817 [DEBUG] [asyncio] Using selector: SelectSelector
+ok
+
+======================================================================
+FAIL: test_it_dah_01_bid_batch (tests.test_integration.JepxIntegrationTests.test_it_dah_01_bid_batch)
+IT-DAH-01: 入札バッチ (dah_bid) 正常系
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "N:\antigravity\jepx4\jepx_project\tests\test_integration.py", line 193, in test_it_dah_01_bid_batch
+    self.assertGreaterEqual(len(out_files), 1)
+AssertionError: 0 not greater than or equal to 1
+
+======================================================================
+FAIL: test_it_itd_01_valid_bid (tests.test_integration.JepxIntegrationTests.test_it_itd_01_valid_bid)
+IT-ITD-01: ExcelからのITD新規入札 (正常系)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "N:\antigravity\jepx4\jepx_project\.venv\Lib\site-packages\asgiref\sync.py", line 325, in __call__
+    return call_result.result()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mkuwa\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "N:\antigravity\jepx4\jepx_project\.venv\Lib\site-packages\asgiref\sync.py", line 365, in main_wrap
+    result = await awaitable
+             ^^^^^^^^^^^^^^^
+  File "N:\antigravity\jepx4\jepx_project\tests\test_integration.py", line 88, in test_it_itd_01_valid_bid
+    self.assertEqual(res.status_code, 200, f"Response: {res.json()}")
+AssertionError: 409 != 200 : Response: {'success': False, 'error_code': 'DUPLICATE_BID', 'message': '同一条件の入札が既に存在します (bidNo=1682106483)'}
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.551s
+
+FAILED (failures=2)
+Found 7 test(s).
+Skipping setup of unused database(s): default.
+System check identified no issues (0 silenced).
+[dah_bid] 対象日: 2026-04-01
+入札完了: 1件 (1)
+[dah_inquiry] 対象日: 2026-04-01
+照会完了: 約定=1件, 市場結果=0件, 清算=1件

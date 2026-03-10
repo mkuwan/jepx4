@@ -95,7 +95,8 @@ async def check_duplicate_bid(data: dict) -> dict | None:
     })
 
     for bid in existing.get('bids', []):
-        if (bid.get('areaCd') == str(data.get('areaCd', ''))
+        if (bid.get('timeCd') == str(data.get('timeCd', ''))
+                and bid.get('areaCd') == str(data.get('areaCd', ''))
                 and bid.get('bidTypeCd') == data.get('bidTypeCd', '')
                 and bid.get('deleteCd', '0') == '0'):
             return bid
