@@ -24,13 +24,15 @@ error_logger = logging.getLogger('jepx.error')
 
 
 async def check_input_file(delivery_date: str) -> bool:
-    """計画値ファイルの存在確認 (dah_check_file コマンド用)
-
+    """計画値ファイル（CSVやExcel）がSharePointの所定フォルダに既にアップロードされているか確認する。
+    
+    JP1等のジョブスケジューラで、ファイル到着を先行確認する(dah_check_file)ために用いられます。
+    
     Args:
-        delivery_date: 対象受渡日 (YYYY-MM-DD)
-
+        delivery_date: 取込対象または約定対象の受渡日 (形式: YYYY-MM-DD)
+        
     Returns:
-        ファイルが存在する場合True
+        bool: 対象ファイルが存在すればTrue、なければFalse
     """
     sp = SharePointClient()
     file_path = f"input/{delivery_date}.csv"
@@ -43,13 +45,13 @@ async def check_input_file(delivery_date: str) -> bool:
 
 
 async def execute_bid(delivery_date: str) -> dict:
-    """入札実行 (dah_bid コマンド用)
-
-    §4.3 処理フロー:
-    1. SharePointから計画値ファイル取込
-    2. バリデーション
-    3. 冪等性チェック (DAH1002照会)
-    4. 入札送信 (DAH1001)
+    """DAH市場の自動入札一連のプロセスを実行するコアロジック。
+    
+    §4.3 処理フローに従い、以下の順序で進行します:
+    1. 【取込】 SharePointから指定された日付の計画値ファイル(入力)をダウンロード。拡張子に応じてExcel/CSVをパース。
+    2. 【検証】 バリデーションエンジンで全行のフォーマット・上限値等チェックを実施。1件でもエラーがあればファイル全体を止める(Fail-Fast)。
+    3. 【冪等】 DAH1002(入札照会)を叩き、既に同じ日付の入札が存在しないか確認。存在していれば「二重送信防止」としてスキップ終了。
+    4. 【送信】 すべて正常かつ未入札なら、DAH1001(入札送信)で全件を一括送信。
 
     Returns:
         {'status': 'success'|'skipped'|'error', 'message': str, 'count': int}
@@ -121,9 +123,12 @@ async def execute_bid(delivery_date: str) -> dict:
 
 
 async def execute_inquiry(delivery_date: str) -> dict:
-    """照会実行 (dah_inquiry コマンド用)
+    """DAH市場の事後確認作業（照会系処理）を一括実行する。
 
-    §4.5: DAH1004(約定照会) + DAH1030(全約定照会) + DAH1050(市場結果) + DAH9001(清算)
+    夕方以降のJP1ジョブ(dah_inquiry)から呼び出され、以下のAPIを順次実行してデータを集約・保存します。
+    - DAH1030 (全約定照会): 自社の全入札に対する約定結果の詳細データ
+    - DAH1050 (市場結果照会): システムプライスなどの全体相場データ
+    - DAH9001 (清算照会): JEPXから発行されるPDF形式の清算ファイル（これはSharePointへ自動保存します）
     """
     client = JepxApiClient()
     sp = SharePointClient()
@@ -164,9 +169,11 @@ async def execute_inquiry(delivery_date: str) -> dict:
 
 
 async def generate_report(delivery_date: str, contract_data: list[dict]) -> bytes:
-    """比較レポート生成 (dah_report コマンド用) (§4.7)
-
-    計画値ファイル vs DAH1030約定結果の比較CSV
+    """計画値と実際の約定結果を付き合わせた「結果比較レポート」のCSVデータを生成する。
+    
+    当初SharePointに置いた入力ファイルの内容と、DAH1030から取得した約定量(contractVolume)などを
+    時間帯コード・エリアコードで突き合わせ(Join)、差分(diff_volume)や不一致判断(match)を追記した
+    運用担当者向けの確認用CSVファイルをBOM付きUTF-8バイト列として生成します。
     """
     sp = SharePointClient()
 

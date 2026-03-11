@@ -12,7 +12,10 @@ audit_logger = logging.getLogger('jepx.audit')
 
 
 async def execute_itd_bid(data: dict) -> dict:
-    """ITD入札実行 (ITD1001)
+    """ITD入札の送信データ構築と実行を行う (ITD1001)
+
+    Views層で受け取ったパース済みのdictから、JEPXが要求する型の
+    値(文字列や小数点数)へ厳格な型変換・補正を行い、JepxApiClientへ渡します。
 
     Args:
         data: リクエストデータ (deliveryDate, timeCd, areaCd, ...)
@@ -42,7 +45,7 @@ async def execute_itd_bid(data: dict) -> dict:
 
 
 async def execute_itd_delete(data: dict) -> dict:
-    """ITD入札削除 (ITD1002)"""
+    """指定された入札番号(bidNo)を持つITD入札を取消(削除)する (ITD1002)"""
     client = JepxApiClient()
     body = {
         'deliveryDate': data['deliveryDate'],
@@ -53,7 +56,7 @@ async def execute_itd_delete(data: dict) -> dict:
 
 
 async def execute_itd_inquiry(data: dict) -> dict:
-    """ITD入札照会 (ITD1003)"""
+    """受渡日・対象時間を指定して自社のITD入札状況を照会する (ITD1003)"""
     client = JepxApiClient()
     body = {'deliveryDate': data['deliveryDate']}
     if data.get('timeCd'):
@@ -63,7 +66,7 @@ async def execute_itd_inquiry(data: dict) -> dict:
 
 
 async def execute_itd_contract(data: dict) -> dict:
-    """ITD約定照会 (ITD1004)"""
+    """受渡日を指定して自社のITD約定状況を照会する (ITD1004)"""
     client = JepxApiClient()
     body = {'deliveryDate': data['deliveryDate']}
     audit_logger.info("[OPERATION] ITD約定照会: ITD1004 (date=%s)", data['deliveryDate'])
@@ -71,7 +74,7 @@ async def execute_itd_contract(data: dict) -> dict:
 
 
 async def execute_itd_settlement(data: dict) -> dict:
-    """ITD清算照会 (ITD9001)"""
+    """ITD清算データを照会する (ITD9001)"""
     client = JepxApiClient()
     body = {'fromDate': data.get('fromDate', data.get('deliveryDate', ''))}
     if data.get('toDate'):
@@ -83,7 +86,9 @@ async def execute_itd_settlement(data: dict) -> dict:
 async def check_duplicate_bid(data: dict) -> dict | None:
     """ITD二重送信チェック (§5.3.1 FR-40準拠)
 
-    ITD1003で同一条件の既存入札を照会する。
+    VBAから送信された入札データと同じ時間帯(timeCd)・エリア(areaCd)・入札種別(bidTypeCd)
+    の「有効な(未取消の)」入札が既に存在しないかをITD1003を用いて事前照会します。
+    ※ 存在する場合は、重複を避けるために呼び出し側のViewでエラー(409 Conflict)として弾きます。
 
     Returns:
         重複入札がある場合はそのbid dict、なければ None

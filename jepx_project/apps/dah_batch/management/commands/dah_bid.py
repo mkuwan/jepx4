@@ -8,12 +8,25 @@ from apps.dah_batch.services import execute_bid
 
 
 class Command(BaseCommand):
+    """翌日市場の入札バッチ（取込→検証→冪等性チェック→入札送信）
+    
+    このクラスは `python manage.py dah_bid --date 2026-03-12` といった形でOSから直接実行可能な
+    CLIコマンドのエントリポイントとなります。（JP1等のジョブからキックされます）
+    
+    BaseCommandを継承しているため、Djangoのコンテキストが自動で読み込まれた状態から起動します。
+    """
+    
     help = '翌日市場の入札バッチ（取込→検証→冪等性チェック→入札送信）'
 
     def add_arguments(self, parser):
         parser.add_argument('--date', required=True, help='受渡日 (YYYY-MM-DD)')
 
     def handle(self, *args, **options):
+        """コマンドのメイン処理。オプション引数から日付を受け取り、サービス層へ渡す。
+        
+        BatchLockで複数起動を防止し、各種エラー(RuntimeError, システムエラー)が発生した場合は
+        OSの終了コードとして 1 (エラー) または 2 (ロック競合) を返して異常を伝達します。
+        """
         delivery_date = options['date']
         self.stdout.write(f"[dah_bid] 対象日: {delivery_date}")
 

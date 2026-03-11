@@ -25,7 +25,7 @@ from apps.jepx_client.exceptions import (
 
 
 class TestBuildPacket(unittest.TestCase):
-    """§3.2 build_packet のテスト"""
+    """§3.2 JEPX電文仕様に準拠した送信用特殊パケット構築(SOH/STX制御文字付与・gzip圧縮)の検証"""
 
     def test_packet_structure(self):
         """SOH + Header + STX + gzip(JSON) + ETX の構造を検証"""

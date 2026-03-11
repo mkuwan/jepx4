@@ -16,9 +16,11 @@ audit_logger = logging.getLogger('jepx.audit')
 
 
 async def itn_receiver_loop(store: ItnMemoryStore) -> None:
-    """ITN1001ストリームを受信し続けるメインループ。
+    """ITN1001ストリームをJEPXから受信し続け、メモリ(Store)へ反映するバックグラウンドの無限ループ。
 
-    接続切断時は5秒後に再接続する。
+    Django(ASGI)の起動時プロセス(lifespan)により呼び出され、アプリ稼働中はずっと監視し続けます。
+    最初に全量データを受信した後は、差分だけが継続的に押し込まれてきます(Push型)。
+    もしネットワークエラー等で切断された場合は、自動的に5秒待機したのちに再接続を試みます。
     """
     client = JepxApiClient()
 

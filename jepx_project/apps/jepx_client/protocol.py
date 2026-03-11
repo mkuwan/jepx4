@@ -25,7 +25,12 @@ class JepxProtocol:
 
     @staticmethod
     def build_packet(member: str, api_code: str, body: dict) -> bytes:
-        """リクエスト電文を組み立てる。
+        """送信用のリクエスト電文（パケット）を要求仕様に従い組み立てる。
+
+        1. 業務用のJSONディクショナリを文字列化してUTF-8バイトに変換。
+        2. ZLIBを用いてGZIP圧縮（JEPX仕様による通信量削減）。
+        3. MEMBER, APIコード, 圧縮データの長さを記載したASCIIヘッダーを作成。
+        4. SOH(0x01) + Header + STX(0x02) + 圧縮実体 + ETX(0x03) で連結。
 
         Args:
             member: 会員ID (4桁英数字)
@@ -43,7 +48,12 @@ class JepxProtocol:
 
     @staticmethod
     def parse_response(data: bytes) -> tuple[dict, dict]:
-        """レスポンス電文を解析する。
+        """JEPXから受信したバイナリ電文を解体し、ヘッダ情報と業務JSONに変換する。
+
+        1. SOH, STX, ETX の制御文字を検索し、パケット境界を特定。
+        2. STXとETXで挟まれたgzip部分を zlib.decompress で解凍。
+        3. ヘッダ部のSIZE宣言と実際のバイト数が一致しているかを検証。
+        4. パース結果を dict として返却。
 
         Returns:
             (header_dict, body_dict)
@@ -80,7 +90,9 @@ class JepxProtocol:
 
     @staticmethod
     def validate_status(header: dict) -> None:
-        """ヘッダSTATUSを検証し、異常時は例外をスローする。
+        """解体したレスポンスのヘッダーに記載されたシステムステータス(STATUS)を検証。
+
+        正常(00)以外の場合は、エラー種別に応じた固有のJepxError子クラスを発生させる。
 
         Raises:
             JepxFormatError: STATUS=10 (電文フォーマット異常)

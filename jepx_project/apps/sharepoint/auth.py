@@ -13,7 +13,11 @@ logger = logging.getLogger('jepx.api')
 
 
 class SharePointAuth:
-    """Azure AD Client Credentials でトークンを取得・キャッシュする"""
+    """Azure AD Client Credentials Flow を使用して、Microsoft Graph APIのアクセストークンを取得・管理するクラス。
+
+    OAuth2.0のクライアント証明書フローを用いて、バックグラウンドでの非対話型(App-only)認証を行います。
+    取得したトークンはクラス変数内でキャッシュし、有効期限が切れる直前まで再利用することで通信を最適化します。
+    """
 
     _token: str | None = None
     _expires_at: float = 0
@@ -27,9 +31,9 @@ class SharePointAuth:
         )
 
     async def get_token(self) -> str:
-        """アクセストークンを取得する (キャッシュあり)。
-
-        トークンの有効期限が切れている場合は自動的に再取得する。
+        """Microsoft Entra ID (旧Azure AD)のエンドポイントからアクセストークンを取得する。
+        
+        キャッシュ済みのトークンがあり、かつ有効期限まで60秒以上の猶予がある場合はキャッシュをそのまま返却します。
         """
         if self._token and time.time() < self._expires_at - 60:
             return self._token

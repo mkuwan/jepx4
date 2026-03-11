@@ -35,6 +35,7 @@ skip_if_no_mockserver = unittest.skipUnless(
 
 @skip_if_no_mockserver
 class JepxIntegrationTests(SimpleTestCase):
+    """MockServer環境と通信し、JEPX連動と業務ロジックを一気通貫で検証するシステム結合テスト。"""
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

@@ -11,7 +11,7 @@ from .views import (
 from apps.itn_stream.views import ItnStreamView
 
 urlpatterns = [
-    # ITD入札 API
+    # ITD API群 (社内Excelなどの外部クライアントからPOST/GETで通信するためのエンドポイント)
     path('api/v1/itd/bid', ItdBidView.as_view(), name='itd_bid'),
     path('api/v1/itd/delete', ItdDeleteView.as_view(), name='itd_delete'),
     path('api/v1/itd/inquiry', ItdInquiryView.as_view(), name='itd_inquiry'),

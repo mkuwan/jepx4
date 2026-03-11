@@ -2,7 +2,10 @@
 
 
 def serialize_bid_response(jepx_body: dict) -> dict:
-    """JEPX入札レスポンスをExcel向けレスポンスに変換する"""
+    """JEPXからの入札完了レスポンスを、Excel VBA側がパースしやすいフラットなJSON形式に変換する。
+    
+    VBA側では 'success' フラグ(True/False)をチェックするだけで簡潔に成否判定・制御分岐が行えます。
+    """
     return {
         'success': jepx_body.get('status') == '200',
         'jepx_status': jepx_body.get('status', ''),
@@ -12,7 +15,7 @@ def serialize_bid_response(jepx_body: dict) -> dict:
 
 
 def serialize_delete_response(jepx_body: dict) -> dict:
-    """JEPX削除レスポンスをExcel向けレスポンスに変換する"""
+    """JEPX削除レスポンスをExcel VBA向けに変換する(successフラグ付き)"""
     return {
         'success': jepx_body.get('status') == '200',
         'jepx_status': jepx_body.get('status', ''),
@@ -21,7 +24,7 @@ def serialize_delete_response(jepx_body: dict) -> dict:
 
 
 def serialize_inquiry_response(jepx_body: dict) -> dict:
-    """JEPX照会レスポンスをExcel向けレスポンスに変換する"""
+    """JEPX照会レスポンスを元に、Excelシートへ展開するための配列入りJSONを構築する"""
     bids = jepx_body.get('bids', [])
     return {
         'success': True,
@@ -51,7 +54,7 @@ def serialize_settlement_response(jepx_body: dict) -> dict:
 
 
 def serialize_error(error_code: str, message: str) -> dict:
-    """エラーレスポンスを構築する"""
+    """予期せぬエラーやバリデーションエラー時に、VBAへ返す統一されたエラーフォーマットを作成する。"""
     return {
         'success': False,
         'error_code': error_code,

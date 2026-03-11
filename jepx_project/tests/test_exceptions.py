@@ -27,7 +27,11 @@ from apps.jepx_client.exceptions import (
 
 
 class TestExceptionHierarchy(unittest.TestCase):
-    """例外がすべて JepxError を継承していること"""
+    """例外がすべて JepxError を継承していること
+    
+    アプリ層でのエラーハンドリングを一元化するため、細分化された通信・業務エラーが
+    すべて単一の共通親クラスを正しく継承しているかを検証します。
+    """
 
     def test_all_inherit_from_jepx_error(self):
         for cls in [

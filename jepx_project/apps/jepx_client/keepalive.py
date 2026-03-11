@@ -16,7 +16,11 @@ logger = logging.getLogger('jepx.api')
 
 
 class KeepAliveManager:
-    """プール内のIdle接続に対してSYS1001を定期送信する"""
+    """プール内の利用可能な全Idle接続に対し、切断予防のSYS1001パケットを定期送信するマネージャ。
+
+    JEPXの仕様上「3分間通信がないと強制切断」されるため、バックグラウンドの非同期タスクとして
+    常にプールを監視し、一定時間（目安:150秒）未使用のソケットがあれば自動でSYS1001を送信します。
+    """
 
     def __init__(self, pool: ConnectionPool):
         self.pool = pool
@@ -33,7 +37,10 @@ class KeepAliveManager:
             self._task.cancel()
 
     async def _keepalive_loop(self):
-        """10秒ごとにIdle接続をスキャンし、150秒経過したものにSYS1001を送信"""
+        """10秒ごとにIdle接続をスキャンし、最終使用から150秒経過したものにPing(SYS1001)を送信する無限ループ。
+        
+        このループはタスクとして常駐し、stop()が呼ばれるかアプリが終了するまで走り続けます。
+        """
         while True:
             await asyncio.sleep(10)  # 10秒ごとにスキャン
             now = time.monotonic()

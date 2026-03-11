@@ -8,7 +8,12 @@ from django.views import View
 
 
 class ItnStreamView(View):
-    """SSE/ポーリングでITNデータを配信するView"""
+    """社内クライアント（WebブラウザのJSダッシュボード等）に対して、ITNデータをリアルタイム配信するAPIエンドポイント。
+
+    クライアントの能力に応じて、以下の2つのモードのいずれかで動作します。
+    - mode=sse: サーバー・セント・イベント(SSE)を用いた真のリアルタイム・プッシュ配信 (推奨)
+    - mode=poll: バージョン番号を指定するロングポーリング方式（SSE非対応やレガシーな環境向け）
+    """
 
     @staticmethod
     async def get(request):
@@ -45,7 +50,11 @@ class ItnStreamView(View):
 
 
 async def _sse_generator(store):
-    """SSEストリーム生成器"""
+    """SSE(Server-Sent Events)のストリームを生成し続ける非同期ジェネレータ。
+    
+    インメモリストア側の更新バージョン番号を周期的に監視し、前回送信時から変更(インクリメント)があった場合のみ
+    `data: {JSON}\n\n` の標準的なSSEフォーマット形式でテキストチャンクを下流ブラウザへ流し込みます。
+    """
     last_version = 0
     while True:
         current_version = store.get_version()

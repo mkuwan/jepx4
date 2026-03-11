@@ -9,9 +9,8 @@ from openpyxl import load_workbook
 
 
 def parse_csv(content: bytes) -> list[dict]:
-    """CSVファイル(bytes)を dict list にパースする。
-
-    BOM付きUTF-8を自動処理。ヘッダ行をキーとして使用。
+    """SharePointから取得したCSVファイルのバイナリをBOM付きUTF-8としてデコードし、
+    1行目（ヘッダー行）をキーとした辞書(dict)のリストに変換する。
 
     Args:
         content: CSVファイルの内容 (bytes)
@@ -25,9 +24,9 @@ def parse_csv(content: bytes) -> list[dict]:
 
 
 def parse_excel(content: bytes, sheet_name: str | None = None) -> list[dict]:
-    """Excelファイル(bytes)を dict list にパースする。
-
-    1行目をヘッダとして使用。
+    """SharePointから取得したExcel(.xlsx)のバイナリを openpyxl で開き、
+    指定されたシート（未指定時は最初のシート）の1行目をキーとした辞書(dict)のリストに変換する。
+    ※完全に空の行は自動的にパース対象からスキップされます。
 
     Args:
         content: Excelファイルの内容 (bytes)

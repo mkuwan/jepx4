@@ -19,9 +19,11 @@ GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 
 
 class SharePointClient:
-    """SharePoint ファイル操作クライアント
+    """SharePoint (OneDrive for Business) 上の共有フォルダとファイル入出力を行うクライアント。
 
-    SHAREPOINT_ENABLED=False (dev) の場合はローカルファイルI/Oにフォールバック。
+    Microsoft Graph API (v1.0) を用いてファイルのダウンロード・アップロードを行います。
+    SHAREPOINT_ENABLED=False に設定されているローカル開発環境(dev環境)では、APIをネットワーク越しに呼ばず、
+    直接ローカルの設定フォルダ(INPUT_FILE_DIR等)を読み書きするフォールバック動作を提供し、開発効率を高めます。
     """
 
     def __init__(self):
@@ -32,13 +34,13 @@ class SharePointClient:
             self.drive_id = settings.SHAREPOINT_DRIVE_ID
 
     async def download_file(self, remote_path: str) -> bytes:
-        """SharePointからファイルをダウンロードする。
+        """SharePoint上の対象パスからファイル（計画値Excel/CSV等）をバイナリとしてダウンロードする。
 
         Args:
             remote_path: SharePoint上のパス (例: "input/2026-04-01.csv")
 
         Returns:
-            ファイル内容 (bytes)
+            ファイル内容のバイト列 (bytes)
         """
         if not self.enabled:
             # dev環境: ローカルファイルから読み込み
@@ -60,11 +62,11 @@ class SharePointClient:
         return resp.content
 
     async def upload_file(self, remote_path: str, content: bytes) -> None:
-        """SharePointにファイルをアップロードする。
+        """生成・取得したデータ（結果レポートCSVやJEPX清算PDF等）をSharePointの指定パスへアップロードする。
 
         Args:
-            remote_path: SharePoint上のパス (例: "output/2026-04-01_report.csv")
-            content: アップロードするファイル内容 (bytes)
+            remote_path: SharePoint上の保存先パス (例: "output/2026-04-01_report.csv")
+            content: アップロードするファイル内容のバイト列 (bytes)
         """
         if not self.enabled:
             # dev環境: ローカルに出力

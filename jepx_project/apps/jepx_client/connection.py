@@ -59,7 +59,10 @@ class JepxConnection:
         return ctx
 
     async def connect(self, host: str, port: int) -> None:
-        """指定ホスト・ポートにTLS接続を確立する"""
+        """指定されたJEPXホストに対し、非同期(asyncio)のTLSソケットストリーム接続を確立する。
+        
+        接続が成功すると、以後の通信に用いる reader / writer をクラス内部に保持します。
+        """
         try:
             self.reader, self.writer = await asyncio.open_connection(
                 host, port, ssl=self._ssl_ctx
@@ -80,7 +83,16 @@ class JepxConnection:
             raise JepxConnectionError(f"送信エラー: {e}") from e
 
     async def receive(self) -> bytes:
-        """ETX (0x03) が来るまでデータを受信する"""
+        """JEPXから送信されたデータを、ETX (0x03) を終端記号として受信する。
+
+        TCP/IPの性質上、パケットが分割されて届く可能性があるため、
+        whileループ内でバッファ(`buf`)に順次チャンクを連結し、
+        ETXフラグメントを発見した段階で1つの電文として返却します。
+        
+        Raises:
+            JepxConnectionError: ソケット切断や読取エラー時
+            JepxTimeoutError: 所定秒数以内にETXに到達しなかった場合
+        """
         if not self.reader:
             raise JepxConnectionError("接続が確立されていません")
         buf = bytearray()

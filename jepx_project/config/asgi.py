@@ -18,9 +18,11 @@ _itn_task = None
 
 
 async def application(scope, receive, send):
-    """ASGI application entry point.
-
-    初回リクエスト時にバックグラウンドでITN受信を開始する。
+    """ASGI(非同期サーバー網プロトコル) アプリケーションのエントリポイント。
+    
+    UvicornやDaphne等のサーバーミドルウェアから呼び出され、HTTP通信やSSEをDjangoアプリ層へルーティングします。
+    また当システム固有の特徴として、サーバー起動プロセスの一環として初回リクエスト受付時に
+    `itn_receiver_loop`（ITN配信受信用無限ループ）を非同期タスクとしてバックグラウンドへ放ちます。
     """
     global _itn_task
     if _itn_task is None:

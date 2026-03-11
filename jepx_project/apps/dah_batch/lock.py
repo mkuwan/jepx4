@@ -18,8 +18,9 @@ logger = logging.getLogger('jepx.audit')
 class BatchLock:
     """ファイルロックによる排他制御。
 
-    同一受渡日のdah_bidが並列実行されることを防止する。
-    Linux (fcntl) / Windows (msvcrt) の両方に対応。
+    同一受渡日の `dah_bid` などのバッチが、複数同時に起動・並行実行されてしまうのを防ぐ仕組みです。
+    OSのファイルロック機構（Windowsならmsvcrt、Linuxならfcntl）を利用し、
+    既にロックファイルが他プロセスによって掴まれている場合は即座に例外をスローして実行を中止します。
     """
 
     def __init__(self, command: str, delivery_date: str):
@@ -29,6 +30,11 @@ class BatchLock:
         self._fd = None
 
     def __enter__(self):
+        """with構文に入った瞬間に呼ばれるロック取得処理。
+        
+        対象日付専用のロックファイルを「排他・非ブロッキングモード(LK_NBLCK / LOCK_NB)」で開き、
+        他プロセスが使用中なら即 RuntimeError を発生させます。
+        """
         self._fd = open(self.lock_path, 'w')
         try:
             if sys.platform == 'win32':

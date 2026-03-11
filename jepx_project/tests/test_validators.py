@@ -35,7 +35,7 @@ def _valid_row(**overrides):
 
 
 class TestRequiredFields(unittest.TestCase):
-    """V-001, V-003, V-005, V-007, V-009, V-012, V-015: 必須チェック"""
+    """V-001〜V-015: 各種必須入力項目が欠落または空値の場合に確実に検知できるかの検証"""
 
     def setUp(self):
         self.validator = BidValidator()

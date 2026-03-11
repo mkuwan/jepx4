@@ -17,8 +17,9 @@ logger = logging.getLogger('jepx.api')
 class ConnectionPool:
     """JEPX Socket コネクションプール
 
-    acquire() で接続を取得し、使用後に release() で返却する。
-    接続が不足している場合は新規作成する。
+    TCP接続(TLSハンドシェイク等)はコストが高いため、使いまわす(Keep-Alive)仕組みを提供します。
+    - `acquire()` でプールから空き接続を取得するか、上限内で新規作成します。
+    - 使用後（送受信の1セット後など）は直ちに `release()` でプールへ返却(Idle化)します。
     """
 
     def __init__(
@@ -37,7 +38,12 @@ class ConnectionPool:
         self._lock = asyncio.Lock()
 
     async def acquire(self) -> JepxConnection:
-        """プールから接続を取得する。空ならば新規作成。"""
+        """プールから利用可能なSocket接続を1本取得する。
+
+        - 空き接続があれば即座にそれを再利用します。
+        - 空きがなく、上限数(max_connections)未満なら新規にTLS接続を確立して返却します。
+        - 上限数に達していれば RuntimeError となります。（ITD等の同時打鍵制限に直結）
+        """
         async with self._lock:
             # Idle接続があれば再利用
             while self._idle:
@@ -70,7 +76,11 @@ class ConnectionPool:
             return conn
 
     async def release(self, conn: JepxConnection) -> None:
-        """接続をプールに返却する"""
+        """通信が済んだ接続をプールに返却し、他のリクエストが使えるようにする。
+
+        もしサーバ側から切断されていたり、致命的なエラーが起きた後の接続なら、
+        Idleリストには戻さずその場で完全に破棄します。
+        """
         async with self._lock:
             self._in_use.discard(conn)
             if conn.is_alive():

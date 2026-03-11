@@ -15,7 +15,11 @@ logger = logging.getLogger('jepx.api')
 
 
 class ItnMemoryStore:
-    """ITN InMemoryStore (スレッドセーフ)"""
+    """ITN(時間前市場)の板情報・約定情報のリアルタイム配信データを保持する、スレッドセーフなインメモリストア。
+
+    JEPXからの膨大な配信差分データを毎回RDB(PostgreSQL等)に書き込んでいてはパフォーマンスが追いつかないため、
+    Django(ASGI)サーバーの単一プロセス内メモリ上にdict形式で最新状態（スナップショット）を構築・保持します。
+    """
 
     def __init__(self):
         self._contracts: dict[str, dict] = {}     # key: bidNo
@@ -29,7 +33,9 @@ class ItnMemoryStore:
         self._version = 0     # 更新バージョン (ポーリング用)
 
     def update_notices(self, notices: list[dict]) -> None:
-        """ITN1001配信データを反映する。
+        """JEPXからPushされたITNの差分配信イベント(お知らせ)により、インメモリ状態を上書き更新(UPSERT)する。
+        
+        同一キーのものがくれば上書きし、新規なら追加されます。更新後はバージョン番号をインクリメントします。
 
         Args:
             notices: ITN通知リスト
@@ -66,7 +72,7 @@ class ItnMemoryStore:
             self._version += 1
 
     def get_snapshot(self) -> dict:
-        """現在の状態をスナップショットとして返す。"""
+        """接続中の社内クライアント(ブラウザのダッシュボードやExcel)へ現在状態をまとめて返却するためのスナップショットを作成する。"""
         with self._lock:
             return {
                 'version': self._version,

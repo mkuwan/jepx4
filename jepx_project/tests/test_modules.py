@@ -31,7 +31,7 @@ from apps.common.codes import (
 
 
 class TestMasterCodes(unittest.TestCase):
-    """§9 jepx_master.yaml の読み込みテスト"""
+    """§9 jepx_master.yaml の読み込みとマスターデータ解決ロジック(メモリ展開)の検証"""
 
     def test_load_master_codes(self):
         """YAML読み込みが成功すること"""

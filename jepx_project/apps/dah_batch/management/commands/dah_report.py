@@ -9,12 +9,18 @@ from apps.dah_batch.services import generate_report
 
 
 class Command(BaseCommand):
+    """当初の入札計画値と、実際の約定結果を比較したレポートを生成するバッチ。
+    
+    JP1の後続ジョブとして起動され、計画値のExcel/CSVファイルとDAH1030（全約定照会）から
+    得た結果をメモリ上で突合し、運用担当者向けの「結果付き合わせレポートCSV」をSharePointへ保存します。
+    """
     help = '翌日市場の比較レポート生成（計画値 vs DAH1030約定結果）'
 
     def add_arguments(self, parser):
         parser.add_argument('--date', required=True, help='受渡日 (YYYY-MM-DD)')
 
     def handle(self, *args, **options):
+        """コマンドのエントリポイント。非同期でレポートの生成およびアップロードを行います。"""
         delivery_date = options['date']
         self.stdout.write(f"[dah_report] 対象日: {delivery_date}")
 

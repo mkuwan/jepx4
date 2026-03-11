@@ -8,12 +8,20 @@ from apps.dah_batch.services import execute_inquiry
 
 
 class Command(BaseCommand):
+    """翌日市場の照会系処理（約定・市場結果・清算）を取りまとめて実行するバッチ。
+    
+    JP1の夕方以降のジョブとして起動され、JEPXからの結果取得と
+    自社SharePoint上の共有フォルダ（PDFやCSVの格納）への書き出しを一手に担います。
+    """
     help = '翌日市場の照会バッチ（約定・市場結果・清算 → ファイル出力）'
 
     def add_arguments(self, parser):
         parser.add_argument('--date', required=True, help='受渡日 (YYYY-MM-DD)')
 
     def handle(self, *args, **options):
+        """照会実行のエントリポイント。
+        内部で execute_inquiry サービスロジックを非同期実行します。
+        """
         delivery_date = options['date']
         self.stdout.write(f"[dah_inquiry] 対象日: {delivery_date}")
 

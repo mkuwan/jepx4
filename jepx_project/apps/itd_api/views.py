@@ -31,7 +31,11 @@ error_logger = logging.getLogger('jepx.error')
 
 
 def _handle_jepx_error(e: Exception) -> JsonResponse:
-    """JEPX例外をエラーコード付きJsonResponseに変換する (§5.3)"""
+    """JEPX基盤(client.py)から送出された通信・業務エラー例外を的確なHTTPステータスコード付きのJSONに変換する。
+    
+    Excel VBAがエラーハンドリングしやすいように、400系(クライアント起因の論理エラー)と
+    500・502・503・504系(サーバーや経路起因のシステム/通信エラー)を細かく出し分けます。
+    """
     if isinstance(e, JepxFormatError):
         return JsonResponse(
             serializers.serialize_error('JEPX_FORMAT_ERROR', str(e)), status=502
@@ -65,7 +69,14 @@ def _handle_jepx_error(e: Exception) -> JsonResponse:
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ItdBidView(View):
-    """POST /api/v1/itd/bid — ITD入札 (ITD1001)"""
+    """POST /api/v1/itd/bid — 時間前市場(ITD)の入札エントリーポイント
+
+    Excel VBAから送信されたJSON入力を受け取り、以下の順に処理します。
+    1. 書式・上限値のバリデーション (BidValidator)
+    2. 二重送信防止の冪等性チェック (DAH共通ロジックに類似)
+    3. JEPXへの送信 (JepxApiClient経由)
+    ※ 外部システム(Excel)からの連携に純粋なAPIとして用いるため、CSRF検証を例外的に無効化(csrf_exempt)しています。
+    """
 
     async def post(self, request):
         try:
@@ -106,7 +117,10 @@ class ItdBidView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ItdDeleteView(View):
-    """POST /api/v1/itd/delete — ITD入札削除 (ITD1002)"""
+    """POST /api/v1/itd/delete — 時間前市場の入札取消エンドポイント (ITD1002)
+
+    VBAからbidNo(入札番号)を受け取り、取消リクエストをJEPXへ送出します。
+    """
 
     async def post(self, request):
         try:

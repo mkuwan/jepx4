@@ -26,10 +26,12 @@ audit_logger = logging.getLogger('jepx.audit')
 
 
 class JepxApiClient:
-    """JEPX API送受信クライアント
+    """JEPX API送受信を抽象化する高レベルクライアント
 
-    内部でコネクションプール・リトライ・ヘッダ検証を行い、
-    上位層にはレスポンスbody(dict)のみを返す。
+    システム内の全ての業務ロジック（DAH/ITD）はこのクラスを経由してJEPXと通信します。
+    内部でコネクションプールからの接続取得、パケット組立、送信、受信、パース、エラーステータス検証、
+    およびタイムアウト時やシステムエラー(STATUS=19)時の再送（リトライ）制御を隠蔽して行っており、
+    呼び出し元へは純粋な業務結果であるレスポンスの辞書(Dict)だけを返却します。
     """
 
     _pool: ConnectionPool | None = None
@@ -47,10 +49,10 @@ class JepxApiClient:
         self.backoff_base = settings.JEPX_RETRY_BACKOFF_BASE
 
     async def send_request(self, api_code: str, body: dict) -> dict:
-        """JEPX APIを呼び出し、レスポンスbody(dict)を返す。
+        """指定された種類のJEPX APIを呼び出し、一連の通信シーケンスを経てレスポンスbody(dict)を返す。
 
         Args:
-            api_code: "DAH1001", "ITD1003" 等
+            api_code: "DAH1001", "ITD1003" などのJEPX仕様書に記載された機能ID
             body: リクエストJSON (dict)
 
         Returns:
@@ -118,13 +120,16 @@ class JepxApiClient:
         raise JepxError(f"リトライ上限超過 ({self.max_retry}回): {last_error}")
 
     async def start_stream(self, api_code: str, body: dict):
-        """配信通信用: JEPX ITN1001ストリームを受信するAsyncGenerator
+        """時間前市場の板情報・約定情報(ITN)を継続受信するための非同期ジェネレータ (AsyncGenerator)
 
+        一度接続したTLSセッションを「切断せず」に保持し続け、JEPXから流れてくる(Pushされる)
+        差分イベントを yield でイベントドリブンに返却し続けます。
+        
         Args:
             api_code: "ITN1001"
             body: リクエストJSON (dict)
-
-        Yields:
+           
+        Yields: 
             (header_dict, body_dict) — 配信データが来るたびにyield
         """
         conn = None
