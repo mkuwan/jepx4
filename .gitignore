@@ -218,3 +218,6 @@ __marimo__/
 
 # PDF
 *.pdf
+
+# settings
+.settings/
