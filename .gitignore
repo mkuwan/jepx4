@@ -221,3 +221,5 @@ __marimo__/
 
 # settings
 .settings
+sso_config.yml
+jepx_project/.settings/sso_config.yml
