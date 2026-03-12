@@ -8,3 +8,4 @@
 ENTRA_TENANT_ID: "dummy-tenant-id-xxxx-xxxx-xxxxxxxxxxxx"
 ENTRA_CLIENT_ID: "dummy-client-id-xxxx-xxxx-xxxxxxxxxxxx"
 ENTRA_CLIENT_SECRET: "dummy-client-secret-xxxxxx"
+ENTRA_AUTHORITY_URL: "https://login.microsoftonline.com/{tenant_id}"
