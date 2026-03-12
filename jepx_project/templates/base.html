@@ -1,0 +1,131 @@
+<!-- jepx_project/templates/base.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JEPX API Server{% endblock %}</title>
+    <!-- Tailwind CSS (CDN for premium UI) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#0ea5e9',
+              secondary: '#64748b',
+              darkbg: '#0f172a',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #0ea5e9;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center mb-1">
+                        <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500 tracking-tight">
+                            JEPX
+                        </span>
+                        <span class="ml-2 text-sm font-medium text-gray-500 mt-1">Trading Gateway</span>
+                    </div>
+                    <div class="hidden md:ml-10 md:flex md:space-x-8 h-full">
+                        <a href="{% url 'web_ui:dah_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dah_dashboard' %}active text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %} inline-flex items-center px-1 border-transparent text-sm font-medium transition-colors duration-200 h-full">
+                            DAH <span class="ml-1 text-xs text-gray-400">(翌日市場)</span>
+                        </a>
+                        <a href="{% url 'web_ui:itd_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'itd_dashboard' %}active text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %} inline-flex items-center px-1 border-transparent text-sm font-medium transition-colors duration-200 h-full">
+                            ITD / ITN <span class="ml-1 text-xs text-gray-400">(時間前市場)</span>
+                        </a>
+                    </div>
+                </div>
+                <!-- User Info & Auth Link -->
+                <div class="flex items-center space-x-4">
+                    {% if request.session.user %}
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="font-medium mr-2">{{ request.session.user.name }}</span>
+                        </div>
+                        <a href="{% url 'web_ui:logout' %}" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors px-3 py-2 rounded-md hover:bg-red-50">ログアウト</a>
+                    {% else %}
+                        <a href="{% url 'web_ui:login' %}" class="btn-primary text-sm font-medium px-4 py-2 rounded-md">Entra ID ログイン</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-md shadow-sm transition-opacity flex items-center
+                    {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200
+                    {% elif message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200
+                    {% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <p class="text-sm text-gray-500">
+                &copy; 2026 JEPX API Server. All rights reserved.
+            </p>
+            <div class="text-xs text-gray-400">
+                System Status: <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Online</span>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

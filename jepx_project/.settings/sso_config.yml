@@ -1,0 +1,10 @@
+# ==========================================
+# Azure SSO Integration Configuration (Dummy)
+#
+# 本ファイルはAzure連携用のクレデンシャルを定義します。
+# 実際の設定値は開発者/管理者が取得して設定してください。
+# ==========================================
+
+ENTRA_TENANT_ID: "dummy-tenant-id-xxxx-xxxx-xxxxxxxxxxxx"
+ENTRA_CLIENT_ID: "dummy-client-id-xxxx-xxxx-xxxxxxxxxxxx"
+ENTRA_CLIENT_SECRET: "dummy-client-secret-xxxxxx"

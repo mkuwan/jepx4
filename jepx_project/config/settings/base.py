@@ -1,22 +1,67 @@
 """基本設定 — 全環境共通 (§2.2.2)"""
 import os
+import yaml
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# --- SSO Configuration Load ---
+# プロジェクトルート直下の .settings/sso_config.yml から認証情報を取得する
+SSO_CONFIG_PATH = BASE_DIR / '.settings' / 'sso_config.yml'
+sso_config = {}
+if SSO_CONFIG_PATH.exists():
+    with open(SSO_CONFIG_PATH, 'r', encoding='utf-8') as f:
+        sso_config = yaml.safe_load(f) or {}
+
+ENTRA_TENANT_ID = sso_config.get('ENTRA_TENANT_ID', os.environ.get('ENTRA_TENANT_ID', ''))
+ENTRA_CLIENT_ID = sso_config.get('ENTRA_CLIENT_ID', os.environ.get('ENTRA_CLIENT_ID', ''))
+ENTRA_CLIENT_SECRET = sso_config.get('ENTRA_CLIENT_SECRET', os.environ.get('ENTRA_CLIENT_SECRET', ''))
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-insecure-key-change-in-production')
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     'apps.jepx_client',
     'apps.dah_batch',
     'apps.itd_api',
     'apps.itn_stream',
     'apps.sharepoint',
     'apps.common',
+    'apps.web_ui', # Django Web GUI
 ]
 
-MIDDLEWARE = []
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# セッション管理（DBレス用: 暗号化署名Cookie）
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 ROOT_URLCONF = 'config.urls'
 

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}入札送信 - DAH{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'web_ui:dah_dashboard' %}" class="text-sm text-blue-600 hover:underline flex items-center mb-2">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        ダッシュボードへ戻る
+    </a>
+    <h1 class="text-2xl font-bold tracking-tight text-gray-900">2. 入札送信 (DAH1001)</h1>
+    <p class="mt-1 text-sm text-gray-500">SharePointまたはローカルの検証済み計画値データソースを入札します。</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+    <div class="glass-panel p-6 rounded-xl">
+        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">送信パラメータ</h3>
+        <form action="#" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">対象受渡日</label>
+                <input type="date" value="2026-04-02" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">すでに同一受渡日の入札が存在する場合は、自動的にスキップされます (DAH1002チェック)。強制上書きの場合は事前に取消処理を行ってください。</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg flex items-center justify-center shadow-md focus:outline-none">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                本番入札を実行
+            </button>
+        </form>
+    </div>
+
+    <div class="glass-panel p-6 rounded-xl bg-gray-50/50">
+        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">直近のステータス</h3>
+        <div class="space-y-4">
+            <div class="flex flex-col border border-gray-200 rounded-md bg-white p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">2026-04-01</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        完了
+                    </span>
+                </div>
+                <div class="text-sm text-gray-700">
+                    <p>送信件数: <span class="font-bold">480</span> 件</p>
+                    <p class="text-xs text-gray-400 mt-1">実行者: 10:00 自動バッチ (JP1)</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col border border-gray-200 rounded-md bg-white p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">2026-04-02</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        未送信
+                    </span>
+                </div>
+                <div class="text-sm text-gray-700">
+                    <p>検証済CSV: <span class="font-bold text-green-600">存在します</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

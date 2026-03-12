@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}CSV取込・検証 - DAH{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'web_ui:dah_dashboard' %}" class="text-sm text-blue-600 hover:underline flex items-center mb-2">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        ダッシュボードへ戻る
+    </a>
+    <h1 class="text-2xl font-bold tracking-tight text-gray-900">1. 取込・検証 (DAHファイルアップロード)</h1>
+    <p class="mt-1 text-sm text-gray-500">SharePoint連携を使用せず、一時的にローカルファイルから計画値データをロードして検証します。</p>
+</div>
+
+<div class="glass-panel rounded-xl p-8 max-w-3xl mx-auto mt-8">
+    <form action="#" method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="border-2 border-dashed border-blue-200 rounded-lg p-12 text-center hover:bg-blue-50 transition-colors">
+            <svg class="mx-auto h-12 w-12 text-blue-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="mt-4 flex text-sm text-gray-600 justify-center">
+                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                    <span>ファイルを選択</span>
+                    <input id="file-upload" name="file-upload" type="file" class="sr-only" accept=".csv,.xlsx">
+                </label>
+                <p class="pl-1">またはドラッグ＆ドロップ</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">CSV, Excelファイル (最大 10MB)</p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">対象受渡日</label>
+            <input type="date" value="2026-04-02" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+
+        <button type="button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            アップロードと検証を実行
+        </button>
+    </form>
+</div>
+{% endblock %}
