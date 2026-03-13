@@ -67,7 +67,9 @@ class JepxIntegrationTests(SimpleTestCase):
         
         data = response.json()
         self.assertEqual(data['status'], 'ok')
-        self.assertIn('itn_connection', data)
+        self.assertIn('itn_connected', data)
+        self.assertIn('itn_version', data)
+        self.assertIn('timestamp', data)
         # MockServerが動いていれば内部的にハンドシェイク成功
 
     # -------------------------------------------------------------

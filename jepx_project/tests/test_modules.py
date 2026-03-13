@@ -155,8 +155,8 @@ class TestItnMemoryStore(unittest.TestCase):
     def test_update_contracts(self):
         """CONTRACT通知がbidNoでマージされること"""
         self.store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '001', 'price': 100},
-            {'noticeType': 'CONTRACT', 'bidNo': '002', 'price': 200},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '001', 'price': 100},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '002', 'price': 200},
         ])
         snap = self.store.get_snapshot()
         self.assertEqual(len(snap['contracts']), 2)
@@ -165,8 +165,8 @@ class TestItnMemoryStore(unittest.TestCase):
     def test_update_boards(self):
         """BID-BOARD通知が(areaCd,timeCd)でマージされること"""
         self.store.update_notices([
-            {'noticeType': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 100},
-            {'noticeType': 'BID-BOARD', 'areaCd': '1', 'timeCd': '2', 'volume': 200},
+            {'noticeTypeCd': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 100},
+            {'noticeTypeCd': 'BID-BOARD', 'areaCd': '1', 'timeCd': '2', 'volume': 200},
         ])
         snap = self.store.get_snapshot()
         self.assertEqual(len(snap['boards']), 2)
@@ -174,10 +174,10 @@ class TestItnMemoryStore(unittest.TestCase):
     def test_board_merge_overwrites(self):
         """同一キーの板情報は上書きマージされること"""
         self.store.update_notices([
-            {'noticeType': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 100},
+            {'noticeTypeCd': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 100},
         ])
         self.store.update_notices([
-            {'noticeType': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 999},
+            {'noticeTypeCd': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1', 'volume': 999},
         ])
         snap = self.store.get_snapshot()
         self.assertEqual(len(snap['boards']), 1)
@@ -186,10 +186,10 @@ class TestItnMemoryStore(unittest.TestCase):
     def test_set_full_state_clears(self):
         """全量配信で既存データがリセットされること"""
         self.store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '001', 'price': 100},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '001', 'price': 100},
         ])
         self.store.set_full_state([
-            {'noticeType': 'CONTRACT', 'bidNo': '999', 'price': 500},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '999', 'price': 500},
         ])
         snap = self.store.get_snapshot()
         self.assertEqual(len(snap['contracts']), 1)
@@ -210,7 +210,7 @@ class TestItnMemoryStore(unittest.TestCase):
         """更新のたびにバージョンが上がること"""
         v0 = self.store.get_version()
         self.store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '001'},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '001'},
         ])
         v1 = self.store.get_version()
         self.assertGreater(v1, v0)

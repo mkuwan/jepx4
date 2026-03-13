@@ -57,14 +57,14 @@ class BidValidator:
         """
         errors = []
         for i, row in enumerate(rows, start=1):
-            errors.extend(self._validate_common(i, row))
+            errors.extend(self._validate_common(i, row, market))
             if market == 'DAH':
                 errors.extend(self._validate_dah(i, row, rows))
             elif market == 'ITD':
                 errors.extend(self._validate_itd(i, row))
         return errors
 
-    def _validate_common(self, row_num: int, row: dict) -> list[ValidationError]:
+    def _validate_common(self, row_num: int, row: dict, market: str = 'DAH') -> list[ValidationError]:
         """共通ルール V-001〜V-016"""
         errs: list[ValidationError] = []
 
@@ -95,13 +95,17 @@ class BidValidator:
             ))
 
         # V-004: areaCd コードチェック
+        # ITD市場ではエリアグループコード(V-I02)も許容するため、区別して検証する
         area = row.get('areaCd', '')
         if area and not is_valid_area_code(area):
-            errs.append(ValidationError(
-                row_num, 'areaCd', 'V-004', 'CODE',
-                f'無効なエリアコードです: {area}',
-                str(area),
-            ))
+            if market == 'ITD' and is_valid_area_group_code(area):
+                pass  # ITD: エリアグループコードも有効
+            else:
+                errs.append(ValidationError(
+                    row_num, 'areaCd', 'V-004', 'CODE',
+                    f'無効なエリアコードです: {area}',
+                    str(area),
+                ))
 
         # V-005: timeCd 必須
         if not row.get('timeCd'):
@@ -253,15 +257,10 @@ class BidValidator:
         return errs
 
     def _validate_itd(self, row_num: int, row: dict) -> list[ValidationError]:
-        """ITD固有ルール V-I01, V-I02"""
+        """ITD固有ルール V-I01, V-I02
+        
+        V-I02 (エリアグループコード許容) は _validate_common() の V-004 で
+        market='ITD' を渡すことで制御するため、ここでの追加チェックは不要。
+        """
         errs: list[ValidationError] = []
-
-        # V-I02: areaCd がエリアグループコードの場合も許容
-        area = row.get('areaCd', '')
-        if area and not is_valid_area_code(area) and is_valid_area_group_code(area):
-            # V-004 で弾かれている場合はITDでは許容なので、エラーから除外するロジックは
-            # 呼び出し側で market='ITD' を指定することで _validate_common の V-004 は
-            # そのままだが、エリアグループも受け入れる場合はここで補正が必要
-            pass  # ITDではエリアグループコードも有効として扱う
-
         return errs

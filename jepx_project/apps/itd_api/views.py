@@ -5,6 +5,7 @@ error_code / message をJSON返却する。
 """
 import json
 import logging
+from datetime import datetime, timezone
 
 from django.http import JsonResponse
 from django.views import View
@@ -219,10 +220,14 @@ class HealthCheckView(View):
 
         pool_status = JepxApiClient.get_pool_status()
         itn_snapshot = itn_store.get_snapshot()
+        itn_conn = itn_snapshot.get('connection', {})
+        now = datetime.now(timezone.utc)
 
         return JsonResponse({
             'status': 'ok',
             'environment': getattr(settings, 'JEPX_ENVIRONMENT', 'unknown'),
             'jepx_pool': pool_status,
-            'itn_connection': itn_snapshot.get('connection', {}),
+            'itn_connected': itn_conn.get('connected', False),
+            'itn_version': itn_snapshot.get('version', 0),
+            'timestamp': now.strftime('%Y-%m-%dT%H:%M:%S.') + f"{now.microsecond // 1000:03d}Z",
         })

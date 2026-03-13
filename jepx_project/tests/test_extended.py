@@ -185,7 +185,7 @@ class TestItnMemoryStoreAdditional(unittest.TestCase):
         """不明な noticeType はデータストアに影響しないこと"""
         store = ItnMemoryStore()
         store.update_notices([
-            {'noticeType': 'UNKNOWN', 'bidNo': '001'},
+            {'noticeTypeCd': 'UNKNOWN', 'bidNo': '001'},
         ])
         snap = store.get_snapshot()
         self.assertEqual(len(snap['contracts']), 0)
@@ -203,12 +203,12 @@ class TestItnMemoryStoreAdditional(unittest.TestCase):
         (スナップショット後の変更が次のスナップショットに反映されないこと)"""
         store = ItnMemoryStore()
         store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '001', 'price': 100},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '001', 'price': 100},
         ])
         snap1 = store.get_snapshot()
         # スナップショット後に新しいデータを追加
         store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '002', 'price': 200},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '002', 'price': 200},
         ])
         snap2 = store.get_snapshot()
 
@@ -225,7 +225,7 @@ class TestItnMemoryStoreAdditional(unittest.TestCase):
             try:
                 for i in range(10):
                     store.update_notices([
-                        {'noticeType': 'CONTRACT', 'bidNo': f'{n}-{i}'},
+                        {'noticeTypeCd': 'CONTRACT', 'bidNo': f'{n}-{i}'},
                     ])
             except Exception as e:
                 errors.append(e)
@@ -249,8 +249,8 @@ class TestItnMemoryStoreAdditional(unittest.TestCase):
         """set_full_state で contracts と boards が両方リセットされること"""
         store = ItnMemoryStore()
         store.update_notices([
-            {'noticeType': 'CONTRACT', 'bidNo': '001'},
-            {'noticeType': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1'},
+            {'noticeTypeCd': 'CONTRACT', 'bidNo': '001'},
+            {'noticeTypeCd': 'BID-BOARD', 'areaCd': '1', 'timeCd': '1'},
         ])
         store.set_full_state([])  # 空で全量リセット
         snap = store.get_snapshot()

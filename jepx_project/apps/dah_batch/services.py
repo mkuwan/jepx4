@@ -104,10 +104,9 @@ async def execute_bid(delivery_date: str) -> dict:
         }
 
     # 4. 入札送信 (DAH1001)
-    bid_offers = _build_bid_offers(rows)
+    bid_offers = _build_bid_offers(rows, delivery_date)
     audit_logger.info("[OPERATION] 入札送信: DAH1001 (%d件)", len(bid_offers))
     result = await client.send_request('DAH1001', {
-        'deliveryDate': delivery_date,
         'bidOffers': bid_offers,
     })
 
@@ -223,11 +222,12 @@ async def generate_report(delivery_date: str, contract_data: list[dict]) -> byte
     return csv_bytes
 
 
-def _build_bid_offers(rows: list[dict]) -> list[dict]:
+def _build_bid_offers(rows: list[dict], delivery_date: str = '') -> list[dict]:
     """入力行リストからDAH1001のbidOffers配列を構築する"""
     offers = []
     for row in rows:
         offer = {
+            'deliveryDate': str(row.get('deliveryDate', delivery_date)),
             'areaCd': str(row.get('areaCd', '')),
             'timeCd': str(row.get('timeCd', '')),
             'bidTypeCd': str(row.get('bidTypeCd', '')),

@@ -39,12 +39,12 @@ class ItnMemoryStore:
 
         Args:
             notices: ITN通知リスト
-                - noticeType="CONTRACT": 約定情報
-                - noticeType="BID-BOARD": 板情報
+                - noticeTypeCd="CONTRACT": 約定情報
+                - noticeTypeCd="BID-BOARD": 板情報
         """
         with self._lock:
             for notice in notices:
-                ntype = notice.get('noticeType', '')
+                ntype = notice.get('noticeTypeCd', '')
                 if ntype == 'CONTRACT':
                     bid_no = notice.get('bidNo', '')
                     if bid_no:

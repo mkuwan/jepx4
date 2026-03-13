@@ -9,6 +9,7 @@ import time
 
 from django.conf import settings
 
+from .connection import JepxConnection
 from .protocol import JepxProtocol
 from .pool import ConnectionPool
 from .exceptions import (
