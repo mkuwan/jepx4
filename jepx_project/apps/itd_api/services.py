@@ -49,7 +49,7 @@ async def execute_itd_delete(data: dict) -> dict:
     client = JepxApiClient()
     body = {
         'deliveryDate': data['deliveryDate'],
-        'bidNo': data['bidNo'],
+        'targetBidNo': data['bidNo'],  # JEPX仕様903 2.2: 削除対象入札番号フィールド名はtargetBidNo
     }
     audit_logger.info("[OPERATION] ITD削除送信: ITD1002 (bidNo=%s)", data['bidNo'])
     return await client.send_request('ITD1002', body)

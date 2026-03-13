@@ -85,20 +85,35 @@ class JepxIntegrationTests(SimpleTestCase):
             "deliveryContractCd": "AAA",
             "note": "統合テスト入札"
         }
-        res = await self.async_client.post('/api/v1/itd/bid', payload, content_type='application/json')
-        self.assertEqual(res.status_code, 200, f"Response: {res.json()}")
-        
-        data = res.json()
-        self.assertTrue(data['success'])
-        self.assertIn('bid_no', data)  # 受付番号が付与されていること
+        # 前回実行で残留している入札を先に削除してクリーンな状態にする
+        inq_res = await self.async_client.get(
+            f'/api/v1/itd/inquiry?deliveryDate={payload["deliveryDate"]}&timeCd={payload["timeCd"]}'
+        )
+        if inq_res.status_code == 200:
+            for bid in inq_res.json().get('bids', []):
+                bid_no = bid.get('bidNo') or bid.get('bid_no')
+                if bid_no:
+                    await self.async_client.post('/api/v1/itd/delete', {
+                        "deliveryDate": payload["deliveryDate"],
+                        "timeCd": payload["timeCd"],
+                        "bidNo": bid_no
+                    }, content_type='application/json')
 
-        # 次のテスト実行時のためにクリーンアップ (MockServerのメモリに残るため)
-        delete_payload = {
-            "deliveryDate": payload["deliveryDate"],
-            "timeCd": payload["timeCd"],
-            "bidNo": data["bid_no"]
-        }
-        await self.async_client.post('/api/v1/itd/delete', delete_payload, content_type='application/json')
+        res = await self.async_client.post('/api/v1/itd/bid', payload, content_type='application/json')
+        bid_no = res.json().get('bid_no') if res.status_code == 200 else None
+        try:
+            self.assertEqual(res.status_code, 200, f"Response: {res.json()}")
+            data = res.json()
+            self.assertTrue(data['success'])
+            self.assertIn('bid_no', data)  # 受付番号が付与されていること
+        finally:
+            # 必ずクリーンアップ実行 (MockServerのメモリに残るため)
+            if bid_no:
+                await self.async_client.post('/api/v1/itd/delete', {
+                    "deliveryDate": payload["deliveryDate"],
+                    "timeCd": payload["timeCd"],
+                    "bidNo": bid_no
+                }, content_type='application/json')
 
     async def test_it_itd_02_validation_error(self):
         """IT-ITD-02: バリデーションエラー"""
