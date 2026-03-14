@@ -5,96 +5,105 @@ from typing import List, Dict
 
 from config import ITN_PUSH_INTERVAL_SEC
 
+
+def _random_price(base_min: float = 80.0, base_max: float = 200.0,
+                  time_cd: int = 24) -> float:
+    """JEPX互換の市場価格を生成（10の倍数、円/MWh）"""
+    base = random.uniform(base_min, base_max)
+    if 14 <= time_cd <= 18:    # 朝ピーク
+        base *= random.uniform(1.3, 2.5)
+    elif 36 <= time_cd <= 42:  # 夕方ピーク
+        base *= random.uniform(1.2, 2.0)
+    elif 1 <= time_cd <= 6:    # 深夜帯
+        base *= random.uniform(0.4, 0.7)
+    return round(base / 10) * 10  # 10の倍数に丸め
+
+
 class ITNMarketEngine:
     def __init__(self):
         self.subscribers: List[asyncio.Queue] = []
-        
-        # Internal state grouped by (deliveryDate, timeCd)
-        # Format: {(deliveryDate, timeCd): [list of bid/ask items]}
-        self.board_state: Dict[tuple[str, str], List[dict]] = {}
-        
+
+        # 板情報の内部状態: {(deliveryDate, timeCd): [bid/ask items]}
+        self.board_state: Dict[tuple, List[dict]] = {}
+
         self._initialize_board()
 
     def _initialize_board(self):
-        """Initializes the board with dummy data for Today and Tomorrow."""
-        today = date.today()
+        """当日・翌日のボードを初期化"""
+        today    = date.today()
         tomorrow = today + timedelta(days=1)
-        
+
         for d in [today, tomorrow]:
             date_str = d.isoformat()
             for t in range(1, 49):
-                time_cd = str(t).zfill(2)
-                # Generate 1-3 dummy bids per timeslot
+                time_cd = f"{t:02d}"
+                tc_int  = t
                 bids = []
                 for _ in range(random.randint(1, 3)):
+                    buy_sell = random.choice(["BUY", "SELL"])
+                    price    = _random_price(time_cd=tc_int)
+                    # 売買によって少し価格をずらし、スプレッドを模擬
+                    if buy_sell == "BUY":
+                        price = max(10, price - random.randint(0, 20))
                     bids.append({
                         "noticeTypeCd": "BID-BOARD",
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp":    datetime.now().isoformat(),
                         "deliveryDate": date_str,
-                        "timeCd": time_cd,
-                        "areaGroupCd": str(random.randint(1, 9)),
-                        "buySellCd": random.choice(["BUY", "SELL"]),
-                        "price": round(random.uniform(5.0, 25.0), 1),
-                        "volume": round(random.uniform(10.0, 50.0), 1)
+                        "timeCd":       time_cd,
+                        "areaGroupCd":  str(random.randint(1, 9)),
+                        "buySellCd":    buy_sell,
+                        "price":        price,
+                        "volume":       round(random.uniform(10.0, 100.0), 1),
                     })
                 self.board_state[(date_str, time_cd)] = bids
 
     def _is_expired(self, delivery_date: str, time_cd: str, now: datetime) -> bool:
-        """Determines if a timeslot has passed."""
+        """スロットの期限切れ判定"""
         try:
-            d = datetime.strptime(delivery_date, "%Y-%m-%d").date()
-            t_idx = int(time_cd) # 1-48
-            # timeCd 1 = 00:00~00:30, timeCd 48 = 23:30~24:00
-            # A slot expires when its end time passes.
-            hours = t_idx // 2
-            minutes = 30 if t_idx % 2 != 0 else 0
+            d     = datetime.strptime(delivery_date, "%Y-%m-%d").date()
+            t_idx = int(time_cd)
+            hours   = (t_idx - 1) // 2
+            minutes = 30 if (t_idx - 1) % 2 == 0 else 0
+            slot_end = datetime.combine(d, datetime.min.time()).replace(
+                hour=hours, minute=minutes + 30 if minutes == 0 else 0)
+            if minutes == 30:
+                slot_end = datetime.combine(d, datetime.min.time()).replace(
+                    hour=hours + 1, minute=0)
             if t_idx == 48:
-                end_time = datetime.combine(d + timedelta(days=1), datetime.min.time())
-            else:
-                end_time = datetime.combine(d, datetime.min.time().replace(hour=hours, minute=minutes))
-            
-            return now >= end_time
+                slot_end = datetime.combine(d + timedelta(days=1), datetime.min.time())
+            return now >= slot_end
         except Exception:
-            return True # If parsing fails, consider it expired to purge
+            return True
 
     def _purge_expired_data(self):
-        """Removes data for time slots that have already passed."""
-        now = datetime.now()
-        expired_keys = []
-        for (d_date, t_cd) in self.board_state.keys():
-            if self._is_expired(d_date, t_cd, now):
-                expired_keys.append((d_date, t_cd))
-                
-        for key in expired_keys:
+        """期限切れスロットを削除"""
+        now         = datetime.now()
+        expired     = [k for k in self.board_state if self._is_expired(k[0], k[1], now)]
+        for key in expired:
             del self.board_state[key]
-            
-        if expired_keys:
-            print(f"[ITN Engine] Purged {len(expired_keys)} expired time slots. Remaining active slots: {len(self.board_state)}")
-            
-        # Also ensure tomorrow's slots exist if we crossed midnight
+        if expired:
+            print(f"[ITN Engine] Purged {len(expired)} expired slots. Remaining: {len(self.board_state)}")
+        # 翌日データがなければ再初期化
         tomorrow = (now.date() + timedelta(days=1)).isoformat()
-        if (tomorrow, "24") not in self.board_state:
-             self._initialize_board() # Re-init will overwrite/append missing future slots smoothly in a real app; for mock, we just broadly ensure data exists.
+        if not any(k[0] == tomorrow for k in self.board_state):
+            self._initialize_board()
 
     def get_full_state(self) -> dict:
-        """Returns the current full market state formatted according to JEPX specifications."""
-        self._purge_expired_data() # Guarantee clean state before sending
-        
+        """全量配信用のフルステートを返す"""
+        self._purge_expired_data()
         all_notices = []
         for bids in self.board_state.values():
             all_notices.extend(bids)
-            
         return {
-            "status": "200",
+            "status":     "200",
             "statusInfo": "",
-            "memo": "Mock: Current Full Market State",
-            "notices": all_notices
+            "notices":    all_notices,
         }
 
     def subscribe(self) -> asyncio.Queue:
         queue = asyncio.Queue()
         self.subscribers.append(queue)
-        print(f"[ITN Engine] New subscriber added. Total: {len(self.subscribers)}")
+        print(f"[ITN Engine] New subscriber. Total: {len(self.subscribers)}")
         return queue
 
     def unsubscribe(self, queue: asyncio.Queue):
@@ -102,64 +111,115 @@ class ITNMarketEngine:
             self.subscribers.remove(queue)
             print(f"[ITN Engine] Subscriber removed. Total: {len(self.subscribers)}")
 
+    def push_contract_notice(self, delivery_date: str, time_cd: str,
+                             contract_price: float, contract_volume: float):
+        """ITD約定発生時に CONTRACT 通知を全購読者へプッシュ（同期的に呼び出し可能）"""
+        now = datetime.now()
+        notice = {
+            "noticeTypeCd":   "CONTRACT",
+            "bidNo":          f"CN{now.strftime('%Y%m%d%H%M%S%f')}",
+            "timestamp":      now.strftime("%Y-%m-%dT%H:%M:%S.") +
+                              f"{now.microsecond // 1000:03d}",
+            "deliveryDate":   delivery_date,
+            "timeCd":         time_cd,
+            "contractPrice":  contract_price,
+            "contractVolume": contract_volume,
+        }
+        packet = {
+            "status":     "200",
+            "statusInfo": "",
+            "notices":    [notice],
+        }
+        if self.subscribers:
+            print(f"[ITN Engine] Broadcasting CONTRACT notice for {delivery_date} tc={time_cd} "
+                  f"price={contract_price} vol={contract_volume} "
+                  f"to {len(self.subscribers)} subscribers.")
+            for queue in self.subscribers:
+                try:
+                    queue.put_nowait(packet)
+                except asyncio.QueueFull:
+                    pass
+
     async def run_engine(self):
-        print(f"[ITN Engine] Background engine started. Pushing every {ITN_PUSH_INTERVAL_SEC} seconds.")
+        """バックグラウンドエンジン: 定期的に差分配信を生成してプッシュ"""
+        print(f"[ITN Engine] Started. Push interval: {ITN_PUSH_INTERVAL_SEC}s")
         diff_count = 1
-        
+
         while True:
             await asyncio.sleep(ITN_PUSH_INTERVAL_SEC)
-            self._purge_expired_data() # Purge old data
-            
-            now = datetime.now()
-            today_str = now.date().isoformat()
-            
-            # Find a valid future timecode to generate a diff for
+            self._purge_expired_data()
+
             active_keys = list(self.board_state.keys())
             if not active_keys:
-                 self._initialize_board()
-                 active_keys = list(self.board_state.keys())
-                 
+                self._initialize_board()
+                active_keys = list(self.board_state.keys())
+
             target_date, target_time = random.choice(active_keys)
-            
+            tc_int   = int(target_time)
+            now      = datetime.now()
             msg_type = random.choice(["CONTRACT", "BID-BOARD"])
-            
-            diff_item = {
+
+            diff_item: dict = {
                 "noticeTypeCd": msg_type,
-                "timestamp": now.isoformat(),
+                "timestamp":    now.strftime("%Y-%m-%dT%H:%M:%S.") +
+                                f"{now.microsecond // 1000:03d}",
                 "deliveryDate": target_date,
-                "timeCd": target_time,
-                "memo": f"Mock: Differential Delivery #{diff_count} from Engine"
+                "timeCd":       target_time,
             }
+
             if msg_type == "CONTRACT":
-                diff_item["contractPrice"] = round(random.uniform(5.0, 25.0), 1)
-                diff_item["contractVolume"] = round(random.uniform(1.0, 20.0), 1)
+                # 直近の板情報から合理的な価格帯を参照
+                board_items = self.board_state.get((target_date, target_time), [])
+                if board_items:
+                    ref_price = float(board_items[-1].get('price', 0))
+                    # 約定価格は板価格付近 (±10%)
+                    diff_item["contractPrice"]  = max(10, round(
+                        ref_price * random.uniform(0.9, 1.1) / 10) * 10)
+                else:
+                    diff_item["contractPrice"]  = _random_price(time_cd=tc_int)
+                diff_item["contractVolume"] = round(random.uniform(5.0, 50.0), 1)
+                diff_item["bidNo"] = f"CN{now.strftime('%Y%m%d%H%M%S%f')}"
             else:
+                # 板情報更新: 前回価格からランダムウォーク
+                board_items = self.board_state.get((target_date, target_time), [])
+                if board_items:
+                    ref_price = float(board_items[-1].get('price', 100))
+                    # 価格は ±20 円/MWh 変動（10の倍数）
+                    delta = random.choice([-20, -10, 0, 10, 20])
+                    new_price = max(10, ref_price + delta)
+                else:
+                    new_price = _random_price(time_cd=tc_int)
+                buy_sell = random.choice(["BUY", "SELL"])
+                # 売買スプレッドを模擬
+                if buy_sell == "BUY":
+                    new_price = max(10, new_price - random.randint(0, 20))
                 diff_item["areaGroupCd"] = str(random.randint(1, 9))
-                diff_item["buySellCd"] = random.choice(["BUY", "SELL"])
-                diff_item["price"] = round(random.uniform(5.0, 25.0), 1)
-                diff_item["volume"] = round(random.uniform(-10.0, 10.0), 1) # Differential can be negative
+                diff_item["buySellCd"]   = buy_sell
+                diff_item["price"]       = new_price
+                diff_item["volume"]      = round(random.uniform(-30.0, 30.0), 1)  # 差分量(負=減少)
+                # 内部板情報を更新
+                self.board_state[(target_date, target_time)].append(diff_item)
 
             diff_packet = {
-                 "status": "200",
-                 "statusInfo": "",
-                 "memo": f"Mock: Differential Delivery #{diff_count} from Engine",
-                 "notices": [diff_item]
+                "status":     "200",
+                "statusInfo": "",
+                "notices":    [diff_item],
             }
 
-            # Update our internal state
-            if msg_type == "BID-BOARD":
-                 self.board_state[(target_date, target_time)].append(diff_item)
-
             if self.subscribers:
-                print(f"[ITN Engine] Broadcasting Differential #{diff_count} ({msg_type}) to {len(self.subscribers)} subscribers.")
+                print(f"[ITN Engine] Diff #{diff_count} ({msg_type}) "
+                      f"→ {len(self.subscribers)} subscribers.")
                 for queue in self.subscribers:
                     try:
                         queue.put_nowait(diff_packet)
                     except asyncio.QueueFull:
                         pass
             else:
-                 print(f"[ITN Engine] Market Updated #{diff_count} (No subscribers). Active slots: {len(self.board_state)}")
-                
+                print(f"[ITN Engine] Market tick #{diff_count} ({msg_type}). "
+                      f"Active slots: {len(self.board_state)}")
+
             diff_count += 1
 
+
 itn_engine = ITNMarketEngine()
+

@@ -7,6 +7,21 @@ from django.http import JsonResponse, StreamingHttpResponse
 from django.views import View
 
 
+class ItnStatusView(View):
+    """ITN接続状態のみを返す軽量エンドポイント。
+    ブラウザのステータスバッジ更新に使用する。
+    """
+
+    @staticmethod
+    async def get(request):
+        from config.asgi import itn_store
+        snapshot = itn_store.get_snapshot()
+        return JsonResponse({
+            'connected': snapshot['connection']['connected'],
+            'error':     snapshot['connection']['error'],
+        })
+
+
 class ItnStreamView(View):
     """社内クライアント（WebブラウザのJSダッシュボード等）に対して、ITNデータをリアルタイム配信するAPIエンドポイント。
 

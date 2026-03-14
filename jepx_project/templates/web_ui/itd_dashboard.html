@@ -7,12 +7,12 @@
         <h1 class="text-3xl font-bold tracking-tight text-gray-900">時間前市場 (ITD / ITN) ダッシュボード</h1>
         <p class="mt-2 text-sm text-gray-500">ITNストリームデータのリアルタイム監視と、即時入札操作を行います。</p>
     </div>
-    <div class="flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full border border-green-200">
-        <span class="relative flex h-3 w-3">
+    <div id="itn-stream-badge" class="flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full border border-green-200">
+        <span id="itn-badge-icon" class="relative flex h-3 w-3">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
         </span>
-        <span class="text-sm font-semibold">ITN Stream Connected</span>
+        <span id="itn-badge-text" class="text-sm font-semibold">ITN Stream Connected</span>
     </div>
 </div>
 
@@ -33,27 +33,15 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-blue-600">買 (指値)</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- ダミーデータ -->
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">東京 (3)</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500">24</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-right font-medium text-rose-500">10.0</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-right font-bold text-gray-900">12.50</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-left text-gray-400">-</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors bg-blue-50/30">
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">東京 (3)</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500">24</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-right text-gray-400">-</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-right font-bold text-gray-900">12.40</td>
-                            <td class="px-6 py-3 whitespace-nowrap text-sm text-left font-medium text-blue-500">5.5</td>
+                    <tbody id="board-tbody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-400 animate-pulse">ITNストリームに接続中...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
-            <div class="mt-4 text-center">
+            <div id="board-waiting" class="mt-4 text-center">
                 <p class="text-xs text-gray-400 animate-pulse">データを待機しています...</p>
             </div>
         </div>
@@ -120,21 +108,8 @@
         
         <div class="glass-panel p-6 rounded-xl">
             <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">最近のアクティビティ</h2>
-            <ul class="space-y-3">
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-green-500 mr-3"></div>
-                    <div>
-                        <p class="text-sm text-gray-800 font-medium">約定成立: 5.0MW @ 12.4円</p>
-                        <p class="text-xs text-gray-400">12:34:56</p>
-                    </div>
-                </li>
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-500 mr-3"></div>
-                    <div>
-                        <p class="text-sm text-gray-800 font-medium">買入札送信 (受付番号: 8901)</p>
-                        <p class="text-xs text-gray-400">12:30:12</p>
-                    </div>
-                </li>
+            <ul id="activity-list" class="space-y-3">
+                <li class="text-xs text-gray-400 animate-pulse">約定データを待機中...</li>
             </ul>
             <div class="mt-4 pt-4 border-t border-gray-100">
                 <a href="{% url 'web_ui:itd_inquiry' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
@@ -145,4 +120,120 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* ── エリアコード → 表示名 ── */
+var AREA_LABELS = {'1':'北海道','2':'東北','3':'東京','4':'中部','5':'北陸','6':'関西','7':'中国','8':'四国','9':'九州'};
+
+/* ── 板テーブルの再描画 ── */
+function renderBoard(boards) {
+    var tbody   = document.getElementById('board-tbody');
+    var waiting = document.getElementById('board-waiting');
+    if (!tbody) return;
+
+    /* エリア:日付:コマ でグループ化し、売板・買板に振り分ける */
+    var groups = {};
+    boards.forEach(function(b) {
+        var area = b.areaGroupCd || b.areaCd || '-';
+        var key  = area + ':' + (b.deliveryDate||'') + ':' + (b.timeCd||'');
+        if (!groups[key]) groups[key] = {area:area, date:b.deliveryDate, tc:parseInt(b.timeCd,10), sells:[], buys:[]};
+        if      (b.buySellCd === 'SELL') groups[key].sells.push(b);
+        else if (b.buySellCd === 'BUY')  groups[key].buys.push(b);
+    });
+
+    var rows = Object.values(groups)
+        .sort(function(a,b){ return a.date === b.date ? a.tc - b.tc : (a.date < b.date ? -1 : 1); })
+        .slice(0, 12);
+
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-400">データなし</td></tr>';
+        return;
+    }
+    if (waiting) waiting.style.display = 'none';
+
+    tbody.innerHTML = rows.map(function(g) {
+        var sell = g.sells.length ? g.sells.reduce(function(a,b){ return a.price < b.price ? a : b; }) : null;
+        var buy  = g.buys.length  ? g.buys.reduce(function(a,b) { return a.price > b.price ? a : b; }) : null;
+        var mid  = (sell && buy) ? Math.round((sell.price + buy.price) / 2)
+                 : sell          ? sell.price
+                 : buy           ? buy.price : '-';
+        var areaLabel = (AREA_LABELS[g.area] || 'エリア'+g.area) + ' ('+g.area+')';
+        var sellCell  = sell ? sell.price + '円 / ' + sell.volume + 'MW' : '-';
+        var buyCell   = buy  ? buy.price  + '円 / ' + buy.volume  + 'MW' : '-';
+        return '<tr class="hover:bg-gray-50 transition-colors">'
+             + '<td class="px-6 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">' + areaLabel + '</td>'
+             + '<td class="px-6 py-3 text-sm text-gray-500 whitespace-nowrap">' + (g.date||'-') + ' #' + g.tc + '</td>'
+             + '<td class="px-6 py-3 text-sm text-right font-medium text-rose-500 whitespace-nowrap">' + sellCell + '</td>'
+             + '<td class="px-6 py-3 text-sm text-right font-bold text-gray-900 whitespace-nowrap">' + mid + '円/MWh</td>'
+             + '<td class="px-6 py-3 text-sm font-medium text-blue-500 whitespace-nowrap">' + buyCell + '</td>'
+             + '</tr>';
+    }).join('');
+}
+
+/* ── 約定アクティビティの再描画 ── */
+function renderContracts(contracts) {
+    var ul = document.getElementById('activity-list');
+    if (!ul || !contracts.length) return;
+    var sorted = contracts.slice()
+        .sort(function(a,b){ return (b.timestamp||'').localeCompare(a.timestamp||''); })
+        .slice(0, 5);
+    ul.innerHTML = sorted.map(function(c) {
+        var ts    = (c.timestamp||'').substring(11, 19) || '-';
+        var area  = AREA_LABELS[c.areaGroupCd] || '';
+        var label = (area ? area + ' コマ' : 'コマ') + parseInt(c.timeCd||0, 10);
+        return '<li class="flex items-start">'
+             + '<div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-green-500 mr-3"></div>'
+             + '<div>'
+             + '<p class="text-sm text-gray-800 font-medium">約定成立: ' + label + ' / ' + (c.contractVolume||'-') + 'MW @ ' + (c.contractPrice||'-') + '円</p>'
+             + '<p class="text-xs text-gray-400">' + ts + '</p>'
+             + '</div></li>';
+    }).join('');
+}
+
+/* ── SSE 接続 ── */
+var _es = null;
+function startSSE() {
+    if (_es) { _es.close(); _es = null; }
+    _es = new EventSource('/api/v1/itn/stream?mode=sse');
+    _es.onmessage = function(e) {
+        try {
+            var data = JSON.parse(e.data);
+            if (data.boards    && data.boards.length)    renderBoard(data.boards);
+            if (data.contracts && data.contracts.length) renderContracts(data.contracts);
+        } catch(ex) { /* JSONパースエラーは無視 */ }
+    };
+    _es.onerror = function() {
+        var badge = document.getElementById('itn-stream-badge');
+        var icon  = document.getElementById('itn-badge-icon');
+        var text  = document.getElementById('itn-badge-text');
+        if (badge) badge.className = 'flex items-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full border border-red-200';
+        if (icon)  icon.innerHTML  = '<span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>';
+        if (text)  text.textContent = 'ITN Stream Disconnected';
+    };
+}
+startSSE();
+
+/* ── base.html ステータスポーリングのコールバック (バッジ更新 + SSE再接続) ── */
+window.onItnStatusUpdate = function(data) {
+    var badge = document.getElementById('itn-stream-badge');
+    var icon  = document.getElementById('itn-badge-icon');
+    var text  = document.getElementById('itn-badge-text');
+    if (!badge || !icon || !text) return;
+    if (data.connected) {
+        badge.className = 'flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full border border-green-200';
+        icon.innerHTML  = '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>'
+                        + '<span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>';
+        text.textContent = 'ITN Stream Connected';
+        /* SSE が切断状態なら再接続 */
+        if (!_es || _es.readyState === 2) startSSE();
+    } else {
+        badge.className = 'flex items-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full border border-red-200';
+        icon.innerHTML  = '<span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>';
+        text.textContent = 'ITN Stream Disconnected';
+        if (_es) { _es.close(); _es = null; }
+    }
+};
+</script>
 {% endblock %}

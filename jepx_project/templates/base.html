@@ -121,11 +121,44 @@
                 &copy; 2026 JEPX API Server. All rights reserved.
             </p>
             <div class="text-xs text-gray-400">
-                System Status: <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Online</span>
+                System Status: <span class="inline-flex items-center gap-1"><span id="system-status-dot" class="w-2 h-2 rounded-full bg-green-500"></span> <span id="system-status-text">Online</span></span>
             </div>
         </div>
     </footer>
 
+    <script>
+    /* ITNストリーム接続状態のポーリング (全ページ共通) */
+    (function () {
+        function updateSystemStatus() {
+            fetch('/api/v1/itn/status')
+                .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+                .then(function (data) {
+                    var dot  = document.getElementById('system-status-dot');
+                    var text = document.getElementById('system-status-text');
+                    if (dot && text) {
+                        if (data.connected) {
+                            dot.className    = 'w-2 h-2 rounded-full bg-green-500';
+                            text.textContent = 'Online';
+                        } else {
+                            dot.className    = 'w-2 h-2 rounded-full bg-red-500';
+                            text.textContent = data.error ? 'Offline (' + data.error + ')' : 'MockServer Offline';
+                        }
+                    }
+                    if (typeof window.onItnStatusUpdate === 'function') {
+                        window.onItnStatusUpdate(data);
+                    }
+                })
+                .catch(function () {
+                    var dot  = document.getElementById('system-status-dot');
+                    var text = document.getElementById('system-status-text');
+                    if (dot)  dot.className    = 'w-2 h-2 rounded-full bg-red-500';
+                    if (text) text.textContent = 'Offline';
+                });
+        }
+        updateSystemStatus();
+        setInterval(updateSystemStatus, 5000);
+    })();
+    </script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

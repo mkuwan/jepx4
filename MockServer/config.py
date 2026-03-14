@@ -13,7 +13,7 @@ KEY_FILE = os.environ.get("MOCK_KEY_FILE", "certs/server.key")
 IDLE_TIMEOUT_SEC = int(os.environ.get("MOCK_IDLE_TIMEOUT_SEC", 180))
 
 # ITN Stream push interval (seconds)
-ITN_PUSH_INTERVAL_SEC = int(os.environ.get("MOCK_ITN_PUSH_INTERVAL_SEC", 10))
+ITN_PUSH_INTERVAL_SEC = int(os.environ.get("MOCK_ITN_PUSH_INTERVAL_SEC", 3))
 
 # Allowed MEMBER IDs (for auth mock)
 ALLOWED_MEMBERS = ["9999", "0841"]

@@ -42,6 +42,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LANGUAGE_CODE = 'ja'
+TIME_ZONE = 'Asia/Tokyo'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+
 # セッション管理（DBレス用: 暗号化署名Cookie）
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 

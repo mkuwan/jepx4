@@ -51,6 +51,8 @@ class Router:
             response_dict = itd.handle_itd1003(body)
         elif api_code == "ITD1004":
             response_dict = itd.handle_itd1004(body)
+        elif api_code == "ITD1005":
+            response_dict = itd.handle_itd1005(body)
         elif api_code == "ITD9001":
             response_dict = itd.handle_itd9001(body)
             

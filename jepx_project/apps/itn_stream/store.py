@@ -46,13 +46,18 @@ class ItnMemoryStore:
             for notice in notices:
                 ntype = notice.get('noticeTypeCd', '')
                 if ntype == 'CONTRACT':
-                    bid_no = notice.get('bidNo', '')
-                    if bid_no:
-                        self._contracts[bid_no] = notice
+                    # bidNo がない場合は deliveryDate+timeCd+timestamp で代替キーを作る
+                    bid_no = (notice.get('bidNo')
+                              or f"{notice.get('deliveryDate','')}:{notice.get('timeCd','')}:{notice.get('timestamp','')}")
+                    self._contracts[bid_no] = notice
                 elif ntype == 'BID-BOARD':
-                    area = notice.get('areaCd', '')
-                    time_cd = notice.get('timeCd', '')
-                    key = f"{area}:{time_cd}"
+                    # MockServer は areaGroupCd を使用する場合がある
+                    # 売Buy・買Buyは同一スロットでも別エントリとして保持する
+                    area      = notice.get('areaCd') or notice.get('areaGroupCd', '')
+                    date_cd   = notice.get('deliveryDate', '')
+                    time_cd   = notice.get('timeCd', '')
+                    buy_sell  = notice.get('buySellCd', '')
+                    key = f"{area}:{date_cd}:{time_cd}:{buy_sell}"
                     self._boards[key] = notice
             self._version += 1
             self._connection_status['last_received'] = time.time()
