@@ -20,5 +20,8 @@ JEPX_TLS_CA_CERT = os.environ.get(
 )
 JEPX_ENVIRONMENT = 'stage'
 
+# SSO バイパス設定 — True にすると Azure 認証をスキップし自動ログイン
+DEV_SSO_BYPASS = False  # 検証環境では必ずAzure認証を行うため False に設定
+
 # SharePoint有効
 SHAREPOINT_ENABLED = True

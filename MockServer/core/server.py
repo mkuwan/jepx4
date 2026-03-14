@@ -11,6 +11,9 @@ from core.itn_engine import itn_engine
 # Shared state to track idle sockets
 active_connections: Dict[asyncio.StreamWriter, float] = {}
 
+# Streaming connections (ITN配信) — JEPX仕様§2.3: 配信通信は無通信でも切断しない
+streaming_connections: set[asyncio.StreamWriter] = set()
+
 async def connection_timeout_monitor():
     """Background task to drop connections idle for longer than IDLE_TIMEOUT_SEC"""
     while True:
@@ -18,6 +21,9 @@ async def connection_timeout_monitor():
         stale_writers = []
         
         for writer, last_active in list(active_connections.items()):
+            # JEPX仕様§2.3: 配信通信(ITN)は無通信でも切断しない → タイムアウト対象外
+            if writer in streaming_connections:
+                continue
             if now - last_active > IDLE_TIMEOUT_SEC:
                 stale_writers.append(writer)
                 
@@ -64,8 +70,12 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
                 print(f"    Dispatching {api}...")
                 
                 # 2. Routing (Error injection points could be inserted here)
-                keep_open, response_packet = await Router.dispatch(header, body_dict, writer)
-                
+                keep_open, response_packet, is_streaming = await Router.dispatch(header, body_dict, writer)
+
+                # JEPX仕様§2.3: 配信通信(ITN)はアイドルタイムアウトの対象外として登録する
+                if is_streaming:
+                    streaming_connections.add(writer)
+
                 # 3. Respond
                 if response_packet:
                     writer.write(response_packet)
@@ -97,8 +107,8 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
         print(f"[-] Unexpected error with {peername}: {e}")
     finally:
         print(f"[*] Cleaning up connection for {peername}")
-        if writer in active_connections:
-            del active_connections[writer]
+        active_connections.pop(writer, None)
+        streaming_connections.discard(writer)
         writer.close()
         try:
             await writer.wait_closed()

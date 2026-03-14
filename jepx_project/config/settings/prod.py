@@ -22,6 +22,9 @@ JEPX_ENVIRONMENT = 'prod'
 
 JEPX_RETRY_MAX = 5  # 本番は再試行回数を増やす
 
+# SSO バイパス設定 — True にすると Azure 認証をスキップし自動ログイン
+DEV_SSO_BYPASS = False  # 本番では必ずAzure認証を行うため False に設定
+
 # SharePoint有効
 SHAREPOINT_ENABLED = True
 

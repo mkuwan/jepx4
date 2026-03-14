@@ -32,6 +32,12 @@ else:
     JEPX_TLS_VERIFY = False
     JEPX_TLS_CA_CERT = None
 
+# -------------------------------------------------------
+# ★ SSO バイパス設定 — True にすると Azure 認証をスキップし自動ログイン
+# -------------------------------------------------------
+DEV_SSO_BYPASS = True  # Azure アプリ登録なしで開発する場合は True のまま使用
+DEV_SSO_BYPASS_USER = {'name': 'Dev User', 'email': 'dev@localhost'}
+
 # dev環境ではSharePoint不要（ローカルファイル利用可）
 SHAREPOINT_ENABLED = False
 INPUT_FILE_DIR = BASE_DIR / 'test_data' / 'input'

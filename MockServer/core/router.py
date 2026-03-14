@@ -10,12 +10,15 @@ from handlers.itn import stream_itn1001
 
 class Router:
     @staticmethod
-    async def dispatch(header: Dict[str, str], body: Dict[str, Any], writer: asyncio.StreamWriter) -> Tuple[bool, Optional[bytes]]:
+    async def dispatch(header: Dict[str, str], body: Dict[str, Any], writer: asyncio.StreamWriter) -> Tuple[bool, Optional[bytes], bool]:
         """
         Dispatches the API request to the appropriate handler based on the header.
         
         Returns:
-            Tuple[bool, Optional[bytes]]: (Keep Socket Open?, Response Packet if any)
+            Tuple[bool, Optional[bytes], bool]:
+                - Keep Socket Open?
+                - Response Packet if any
+                - is_streaming: True の場合は配信通信(ITN) — JEPX仕様§2.3 によりアイドルタイムアウト対象外
         """
         # 1. Authority Check
         member = header.get("MEMBER", "")
@@ -55,8 +58,8 @@ class Router:
         elif api_code == "ITN1001":
             # Start background streaming task on this socket
             asyncio.create_task(stream_itn1001(writer))
-            # Tell server NOT to close this, and we don't return an immediate single packet here
-            return True, None
+            # JEPX仕様§2.3: 配信通信はアイドルタイムアウト対象外 → is_streaming=True を返す
+            return True, None, True
             
         # SYS Handlers (Keep-Alive)
         elif api_code == "SYS1001":
@@ -69,4 +72,4 @@ class Router:
         
         # Build standard success response packet
         packet = build_response(status="00", body_dict=response_dict)
-        return keep_open, packet
+        return keep_open, packet, False

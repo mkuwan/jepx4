@@ -3,6 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
+from django.conf import settings
 
 from .auth import oauth, cookie_login_required
 
@@ -10,7 +11,11 @@ from .auth import oauth, cookie_login_required
 # SSO Authentication Views
 # ==========================================
 def login_view(request):
-    """Azure SSOログイン画面へリダイレクト"""
+    """Azure SSOログイン画面へリダイレクト（dev環境ではバイパス可能）"""
+    # DEV_SSO_BYPASS=True の場合は Azure 認証をスキップして即ログイン済みにする
+    if getattr(settings, 'DEV_SSO_BYPASS', False):
+        request.session['user'] = settings.DEV_SSO_BYPASS_USER
+        return redirect('web_ui:dah_dashboard')
     redirect_uri = request.build_absolute_uri(reverse('web_ui:callback'))
     return oauth.microsoft.authorize_redirect(request, redirect_uri)
 
