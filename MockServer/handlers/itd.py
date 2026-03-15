@@ -75,6 +75,11 @@ def handle_itd1001(body: dict) -> dict:
                 contract_price=contract['contractPrice'],
                 contract_volume=contract['contractVolume'],
             )
+            # 約定後の板状態をBID-BOARDとして通知 → 取引ボードが即時更新される
+            itn_engine.push_board_update_for_contract(
+                delivery_date=contract['deliveryDate'],
+                time_cd=contract['timeCd'],
+            )
         except Exception:
             pass  # ITN 通知失敗は入札レスポンスに影響させない
 

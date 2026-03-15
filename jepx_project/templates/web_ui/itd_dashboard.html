@@ -133,6 +133,12 @@ function renderBoard(boards) {
     var waiting = document.getElementById('board-waiting');
     if (!tbody) return;
 
+    /* 現在コマ番号を算出 (JST = UTC+9) */
+    var _now    = new Date();
+    var _jst    = new Date(_now.getTime() + (_now.getTimezoneOffset() + 540) * 60000);
+    var _today  = _jst.toISOString().slice(0, 10);
+    var _curTc  = _jst.getUTCHours() * 2 + (_jst.getUTCMinutes() >= 30 ? 2 : 1);
+
     /* エリア:日付:コマ でグループ化し、売板・買板に振り分ける */
     var groups = {};
     boards.forEach(function(b) {
@@ -143,8 +149,22 @@ function renderBoard(boards) {
         else if (b.buySellCd === 'BUY')  groups[key].buys.push(b);
     });
 
+    /* グループ内の最新タイムスタンプを取得するヘルパー */
+    function latestTs(g) {
+        return g.sells.concat(g.buys).reduce(function(mx, it) {
+            return (it.timestamp || '') > mx ? (it.timestamp || '') : mx;
+        }, '');
+    }
+
     var rows = Object.values(groups)
-        .sort(function(a,b){ return a.date === b.date ? a.tc - b.tc : (a.date < b.date ? -1 : 1); })
+        /* 過去スロット(受渡日が過去 or 今日かつ現在コマより前)を除外 */
+        .filter(function(g) {
+            if (!g.date) return false;
+            if (g.date > _today) return true;
+            return g.date === _today && g.tc >= _curTc;
+        })
+        /* 最終更新が新しい順に並べる → 直近に動いたスロットが上に来る */
+        .sort(function(a, b) { return latestTs(b).localeCompare(latestTs(a)); })
         .slice(0, 12);
 
     if (rows.length === 0) {

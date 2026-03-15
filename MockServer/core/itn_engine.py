@@ -111,6 +111,36 @@ class ITNMarketEngine:
             self.subscribers.remove(queue)
             print(f"[ITN Engine] Subscriber removed. Total: {len(self.subscribers)}")
 
+    def push_board_update_for_contract(self, delivery_date: str, time_cd: str) -> None:
+        """ITD約定発生後、対象スロットの現状BID-BOARD通知を購読者へプッシュする。
+
+        約定によって板の状態が変わったことをフロントエンドに知らせ、
+        取引ボードが即時更新されるようにする。
+        """
+        board_items = self.board_state.get((delivery_date, time_cd), [])
+        if not board_items or not self.subscribers:
+            return
+
+        now = datetime.now()
+        ts  = now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+
+        for item in board_items:
+            diff = dict(item)
+            diff["timestamp"] = ts          # 更新時刻を最新化
+            packet = {
+                "status":     "200",
+                "statusInfo": "",
+                "notices":    [diff],
+            }
+            for queue in self.subscribers:
+                try:
+                    queue.put_nowait(packet)
+                except asyncio.QueueFull:
+                    pass
+
+        print(f"[ITN Engine] Board update pushed for {delivery_date} tc={time_cd} "
+              f"({len(board_items)} entries) to {len(self.subscribers)} subscribers.")
+
     def push_contract_notice(self, delivery_date: str, time_cd: str,
                              contract_price: float, contract_volume: float):
         """ITD約定発生時に CONTRACT 通知を全購読者へプッシュ（同期的に呼び出し可能）"""
