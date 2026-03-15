@@ -2,50 +2,52 @@
 {% block title %}清算レポート - DAH{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <a href="{% url 'web_ui:dah_dashboard' %}" class="text-sm text-blue-600 hover:underline flex items-center mb-2">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+<div class="mb-4">
+    <a href="{% url 'web_ui:dah_dashboard' %}" class="text-decoration-none small text-primary d-inline-flex align-items-center gap-1 mb-2">
+        <svg class="jepx-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         ダッシュボードへ戻る
     </a>
-    <h1 class="text-2xl font-bold tracking-tight text-gray-900">4. 約定・清算レポートダウンロード</h1>
-    <p class="mt-1 text-sm text-gray-500">DAH1030等を利用して、当日の約定結果や過去の清算情報を取得します。</p>
+    <h1 class="h4 fw-bold text-dark mb-1">4. 約定・清算レポートダウンロード</h1>
+    <p class="text-muted small mb-0">DAH1030等を利用して、当日の約定結果や過去の清算情報を取得します。</p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-    <div class="glass-panel p-6 rounded-xl border-t-4 border-t-teal-500">
-        <h3 class="text-lg font-bold text-gray-900 mb-2">比較レポート (CSV)</h3>
-        <p class="text-sm text-gray-600 mb-6">計画値ファイルとDAH1030（全約定照会）の差分比較レポートをダウンロードします。</p>
-        
-        <form action="#" method="GET" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">対象受渡日</label>
-                <input type="date" value="2026-04-01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <button type="button" class="w-full flex justify-center items-center py-2 px-4 border border-teal-600 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                レポートCSV Download
-            </button>
-        </form>
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="glass-panel p-4 border-top border-4" style="border-color:#0d9488 !important;">
+            <h3 class="h6 fw-bold mb-1">比較レポート (CSV)</h3>
+            <p class="small text-muted mb-3">計画値ファイルとDAH1030（全約定照会）の差分比較レポートをダウンロードします。</p>
+            <form action="#" method="GET">
+                <div class="mb-3">
+                    <label class="form-label small fw-medium">対象受渡日</label>
+                    <input type="date" value="2026-04-01" class="form-control form-control-sm">
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <svg class="jepx-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    レポートCSV Download
+                </button>
+            </form>
+        </div>
     </div>
 
-    <div class="glass-panel p-6 rounded-xl border-t-4 border-t-blue-500">
-        <h3 class="text-lg font-bold text-gray-900 mb-2">清算照会 (PDF)</h3>
-        <p class="text-sm text-gray-600 mb-6">DAH9001を利用し、JEPXから提供される清算明細PDFを取得します。</p>
-        
-        <form action="#" method="GET" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">対象期間</label>
-                <div class="flex items-center space-x-2 mt-1">
-                    <input type="date" value="2026-04-01" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-                    <span class="text-gray-500">〜</span>
-                    <input type="date" value="" placeholder="任意" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-400">
+    <div class="col-md-6">
+        <div class="glass-panel p-4 border-top border-4 border-primary">
+            <h3 class="h6 fw-bold mb-1">清算照会 (PDF)</h3>
+            <p class="small text-muted mb-3">DAH9001を利用し、JEPXから提供される清算明細PDFを取得します。</p>
+            <form action="#" method="GET">
+                <div class="mb-3">
+                    <label class="form-label small fw-medium">対象期間</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="date" value="2026-04-01" class="form-control form-control-sm">
+                        <span class="text-muted">〜</span>
+                        <input type="date" value="" placeholder="任意" class="form-control form-control-sm">
+                    </div>
                 </div>
-            </div>
-            <button type="button" class="w-full btn-primary py-2 px-4 rounded-md shadow-sm text-sm font-medium flex justify-center items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                PDF Download
-            </button>
-        </form>
+                <button type="button" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <svg class="jepx-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    PDF Download
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -83,19 +83,25 @@ class JepxConnection:
             raise JepxConnectionError(f"送信エラー: {e}") from e
 
     async def receive(self) -> bytes:
-        """JEPXから送信されたデータを、ETX (0x03) を終端記号として受信する。
+        """JEPXから送信されたデータをヘッダの SIZE 宣言に基づいて正確に受信する。
 
-        TCP/IPの性質上、パケットが分割されて届く可能性があるため、
-        whileループ内でバッファ(`buf`)に順次チャンクを連結し、
-        ETXフラグメントを発見した段階で1つの電文として返却します。
-        
+        ＜なぜ ETX 検索では駄目か＞
+        ボディ部は gzip 圧縮バイナリであり、内部に 0x03 バイトが出現しうる。
+        ETX (0x03) を検索すると圧縮データ内の偽 ETX で早期終了し SIZE 不一致になる。
+
+        ＜正しい受信手順＞
+        1. STX (0x02) が出るまで読み込む（ヘッダは ASCII なので 0x02 は現れない）
+        2. ヘッダの SIZE= を解析して期待するボディ長を確定
+        3. SOH + header + STX + SIZE bytes + ETX の合計バイト数になるまで読み込む
+
         Raises:
             JepxConnectionError: ソケット切断や読取エラー時
-            JepxTimeoutError: 所定秒数以内にETXに到達しなかった場合
+            JepxTimeoutError: 所定秒数以内に受信完了しなかった場合
         """
         if not self.reader:
             raise JepxConnectionError("接続が確立されていません")
         buf = bytearray()
+        total_expected = None  # 確定後にセット
         try:
             while True:
                 chunk = await asyncio.wait_for(
@@ -105,8 +111,22 @@ class JepxConnection:
                 if not chunk:
                     raise JepxConnectionError("JEPX接続が切断されました")
                 buf.extend(chunk)
-                if b'\x03' in chunk:  # ETX検出
+
+                # Step1: STX が揃うまでループ継続
+                if total_expected is None and b'\x02' in buf:
+                    stx_idx = buf.index(b'\x02')
+                    header_str = buf[1:stx_idx].decode('ascii')  # SOH の次から
+                    header = dict(
+                        p.split('=', 1) for p in header_str.split(',') if '=' in p
+                    )
+                    declared_size = int(header.get('SIZE', 0))
+                    # SOH(1) + header + STX(1) + body(declared_size) + ETX(1)
+                    total_expected = stx_idx + 1 + declared_size + 1
+
+                # Step2: 必要バイト数に達したら終了
+                if total_expected is not None and len(buf) >= total_expected:
                     break
+
         except asyncio.TimeoutError:
             raise JepxTimeoutError(
                 f"受信タイムアウト ({settings.JEPX_SOCKET_TIMEOUT_SEC}秒)"
@@ -114,7 +134,8 @@ class JepxConnection:
         except (OSError, ConnectionError) as e:
             raise JepxConnectionError(f"受信エラー: {e}") from e
         self.last_used = time.monotonic()
-        return bytes(buf)
+        # 複数パケットが連結して届いた場合に備え、1パケット分だけ返す
+        return bytes(buf[:total_expected])
 
     async def close(self) -> None:
         """接続を閉じる"""
